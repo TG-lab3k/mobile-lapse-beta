@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lapse/business/memory/added/added_page.dart';
 import 'package:lapse/theme/colors.dart';
 
 import 'home_timeline_item_widget.dart';
@@ -26,7 +27,7 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
         height: double.infinity,
         decoration: const BoxDecoration(color: colorPrimary5),
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
-        child: HomeTimelineItemWidget(),
+        child: MemoTimelineItemWidget(), //HomeTimelineItemWidget(),
       ),
     );
   }

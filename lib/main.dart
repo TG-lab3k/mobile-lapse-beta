@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lapse/business/memory/home/home_page.dart';
+import 'package:lapse/business/memory/home/home_timeline_item_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MemoryHomePage(title: 'Lapse'),
+      home:  const MemoryHomePage(title: 'Lapse'),
     );
   }
 }
