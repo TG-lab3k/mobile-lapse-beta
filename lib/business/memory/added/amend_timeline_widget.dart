@@ -1,13 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable_widget.dart';
 import 'package:lapse/widget/toasts.dart';
 
+const String MIN_DATETIME = '2010-05-15 09:23:10';
+const String MAX_DATETIME = '2019-06-03 21:11:00';
+const String INIT_DATETIME = '2023-05-20 09:30:00';
+
 class AmendTimelineItemWidget extends StatelessWidget {
   AmendTimelineItemWidget(this.index);
 
   final int index;
+
+  bool? _showTitle = true;
+
+  DateTimePickerLocale? _locale = DateTimePickerLocale.zh_cn;
+
+  late DateTime _dateTime = DateTime.parse(INIT_DATETIME);
+
+  void _showDateTimePicker(BuildContext context) {
+    DatePicker.showDatePicker(
+      context,
+      minDateTime: DateTime.parse(MIN_DATETIME),
+      maxDateTime: DateTime.now(),
+      initialDateTime: _dateTime,
+      dateFormat: "M月-d日 H时:m分",
+      locale: _locale!,
+      pickerTheme: DateTimePickerTheme(
+        showTitle: _showTitle!,
+      ),
+      pickerMode: DateTimePickerMode.datetime, // show TimePicker
+      onCancel: () {
+        debugPrint('onCancel');
+      },
+      onChange: (dateTime, List<int> index) {
+        //Toasts.toast(_dateTime.toString());
+      },
+      onConfirm: (dateTime, List<int> index) {
+        Toasts.toast(_dateTime.toString());
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +104,7 @@ class AmendTimelineItemWidget extends StatelessWidget {
                             ))),
                     listener: (Widget hostWidget) {
                       Toasts.toast("第$index的Item被点击");
+                      _showDateTimePicker(context);
                     }),
               ),
             ],
