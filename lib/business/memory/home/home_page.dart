@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lapse/business/memory/added/added_page.dart';
 import 'package:lapse/theme/colors.dart';
+import 'package:lapse/widget/toasts.dart';
 
 import 'home_timeline_item_widget.dart';
 
@@ -17,8 +18,13 @@ const double heightItem = 15;
 
 class _MemoryHomePageState extends State<MemoryHomePage> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    Toasts.initialize(context);
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lapse/business/memory/home/home_page.dart';
 import 'package:lapse/business/memory/home/home_timeline_item_widget.dart';
 
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: FToastBuilder(),
       title: 'Lapse',
       theme: ThemeData(
         // This is the theme of your application.
