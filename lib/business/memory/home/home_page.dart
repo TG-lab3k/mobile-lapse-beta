@@ -6,9 +6,9 @@ import 'package:lapse/widget/toasts.dart';
 import 'home_timeline_item_widget.dart';
 
 class MemoryHomePage extends StatefulWidget {
-  const MemoryHomePage({super.key, required this.title});
+  const MemoryHomePage({super.key, this.title});
 
-  final String title;
+  final String? title;
 
   @override
   State<StatefulWidget> createState() => _MemoryHomePageState();
@@ -27,13 +27,13 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title!),
       ),
       body: Container(
         height: double.infinity,
         decoration: const BoxDecoration(color: colorPrimary5),
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
-        child: MemoTimelineItemWidget(), //HomeTimelineItemWidget(),
+        child: AddedPage(), //HomeTimelineItemWidget(),
       ),
     );
   }

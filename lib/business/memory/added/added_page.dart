@@ -1,13 +1,17 @@
-//https://github.com/search?q=flutter+DatePicker
-
 import 'package:flutter/material.dart';
-import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
+import 'package:lapse/theme/colors.dart';
+import 'package:lapse/widget/skeleton.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MemoTimelineItemWidget extends StatelessWidget {
+
+class AddedPage extends StatelessWidget {
   static final itemKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
-    return AmendTimelineWidget();
+    String label = AppLocalizations.of(context)!.memAddedTitle;
+    return Skeleton(title: label, body: Container());
   }
+
+  
 }

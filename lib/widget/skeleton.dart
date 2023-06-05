@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+
+class Skeleton extends StatefulWidget {
+  const Skeleton({super.key, this.title, this.body});
+
+  final String? title;
+  final Widget? body;
+
+  @override
+  State<StatefulWidget> createState() {
+    return _SkeletonState();
+  }
+}
+
+class _SkeletonState extends State<Skeleton> {
+  @override
+  Widget build(BuildContext context) {
+    String title = "";
+    if (widget.title != null) {
+      title = widget.title!;
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+        ),
+        body: widget.body);
+  }
+}

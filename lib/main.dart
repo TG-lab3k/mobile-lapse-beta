@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lapse/business/memory/home/home_page.dart';
-import 'package:lapse/business/memory/home/home_timeline_item_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       builder: FToastBuilder(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       title: 'Lapse',
       theme: ThemeData(
         // This is the theme of your application.
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home:  const MemoryHomePage(title: 'Lapse'),
+      home: MemoryHomePage(title: 'Lapse'),
     );
   }
 }
