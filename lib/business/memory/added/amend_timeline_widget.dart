@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:lapse/theme/colors.dart';
-import 'package:lapse/widget/clickable_widget.dart';
+import 'package:lapse/widget/clickable.dart';
 import 'package:lapse/widget/toasts.dart';
 
 const String MIN_DATETIME = '2010-05-15 09:23:10';
@@ -91,7 +91,7 @@ class AmendTimelineItemWidget extends StatelessWidget {
                       color: Color.fromARGB(0x00, 0x00, 0x00, 0x00))),
               Positioned(
                 bottom: 1,
-                child: ClickableWidget(
+                child: Clickable(
                     host: Container(
                         height: 15,
                         padding: const EdgeInsets.only(left: 4, right: 4),

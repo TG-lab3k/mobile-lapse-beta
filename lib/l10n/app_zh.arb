@@ -1,4 +1,7 @@
 {
   "appName": "Lapse",
-  "memAddedTitle": "新增"
+  "memAddedTitle": "新增",
+  "memAddedTitleHint":"请输入名称",
+  "memAddedContentHint":"请输入内容",
+  "memAddedSubmit":"添加"
 }

@@ -3,7 +3,6 @@ import 'package:lapse/business/memory/added/added_page.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/toasts.dart';
 
-import 'home_timeline_item_widget.dart';
 
 class MemoryHomePage extends StatefulWidget {
   const MemoryHomePage({super.key, this.title});
