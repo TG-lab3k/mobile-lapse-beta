@@ -11,9 +11,11 @@ const String INIT_DATETIME = '2023-05-20 09:30:00';
 //https://github.com/search?q=flutter+DatePicker
 
 class AmendTimelineItemWidget extends StatelessWidget {
-  AmendTimelineItemWidget(this.index);
+  AmendTimelineItemWidget(
+      {required this.index, required this.paddingHorizontal});
 
   final int index;
+  final double paddingHorizontal;
 
   bool? _showTitle = true;
 
@@ -50,79 +52,89 @@ class AmendTimelineItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const radius = BorderRadius.all(Radius.circular(15.0));
     return Container(
+        decoration: BoxDecoration(color: colorPrimary6),
+        padding:
+            EdgeInsets.fromLTRB(paddingHorizontal, 0, paddingHorizontal, 0),
         child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          //decoration: const BoxDecoration(color: colorPrimary2),
-          child: Stack(
-            children: [
-              Container(
-                  width: 15,
-                  height: 60,
-                  alignment: Alignment.center,
-                  child: VerticalDivider(color: colorPrimary2, width: 1.0)),
-              Positioned(
-                bottom: 1,
-                child: Container(
-                    height: 15,
-                    width: 15,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                        color: colorPrimary3, borderRadius: radius),
-                    child: Text("${index + 1}",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                        ))),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          //decoration: const BoxDecoration(color: colorPrimary2),
-          margin: const EdgeInsets.only(left: 10),
-          child: Stack(
-            children: [
-              Container(
-                  height: 60,
-                  width: 200,
-                  alignment: Alignment.center,
-                  child: VerticalDivider(
-                      color: Color.fromARGB(0x00, 0x00, 0x00, 0x00))),
-              Positioned(
-                bottom: 1,
-                child: Clickable(
-                    host: Container(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              //decoration: const BoxDecoration(color: colorPrimary2),
+              child: Stack(
+                children: [
+                  Container(
+                      width: 15,
+                      height: 60,
+                      alignment: Alignment.center,
+                      child: VerticalDivider(color: colorPrimary2, width: 1.0)),
+                  Positioned(
+                    bottom: 1,
+                    child: Container(
                         height: 15,
-                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        width: 15,
+                        alignment: Alignment.center,
                         decoration: const BoxDecoration(
                             color: colorPrimary3, borderRadius: radius),
-                        alignment: Alignment.center,
-                        child: const Text("2023-05-28 00:18",
+                        child: Text("${index + 1}",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
                             ))),
-                    listener: (Widget hostWidget) {
-                      Toasts.toast("第$index的Item被点击");
-                      _showDateTimePicker(context);
-                    }),
+                  ),
+                ],
               ),
-            ],
-          ),
-        )
-      ],
-    ));
+            ),
+            Container(
+              //decoration: const BoxDecoration(color: colorPrimary2),
+              margin: const EdgeInsets.only(left: 10),
+              child: Stack(
+                children: [
+                  Container(
+                      height: 60,
+                      width: 200,
+                      alignment: Alignment.center,
+                      child: VerticalDivider(
+                          color: Color.fromARGB(0x00, 0x00, 0x00, 0x00))),
+                  Positioned(
+                    bottom: 1,
+                    child: Clickable(
+                        host: Container(
+                            height: 15,
+                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            decoration: const BoxDecoration(
+                                color: colorPrimary3, borderRadius: radius),
+                            alignment: Alignment.center,
+                            child: const Text("2023-05-28 00:18",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ))),
+                        listener: (Widget hostWidget) {
+                          Toasts.toast("第$index的Item被点击");
+                          _showDateTimePicker(context);
+                        }),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ));
   }
 }
 
 class AmendTimelineWidget extends StatelessWidget {
+  AmendTimelineWidget({this.paddingHorizontal});
+
+  double? paddingHorizontal = 10;
+
   @override
   Widget build(BuildContext context) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        return AmendTimelineItemWidget(index);
+        return AmendTimelineItemWidget(
+          index: index,
+          paddingHorizontal: paddingHorizontal!,
+        );
       }, childCount: 8),
     );
   }

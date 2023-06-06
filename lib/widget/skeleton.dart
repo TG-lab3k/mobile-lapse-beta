@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lapse/theme/colors.dart';
 
 class Skeleton extends StatefulWidget {
   const Skeleton({super.key, this.title, this.body});
@@ -20,9 +21,11 @@ class _SkeletonState extends State<Skeleton> {
       title = widget.title!;
     }
     return Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: widget.body);
+      appBar: AppBar(
+        title: Text(title),
+        elevation: 0,
+      ),
+      body: widget.body,
+    );
   }
 }
