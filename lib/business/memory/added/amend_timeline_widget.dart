@@ -23,30 +23,12 @@ class AmendTimelineItemWidget extends StatefulWidget {
 
   @override
   State createState() {
-    return _AmendTimelineItemState(
-        index: index,
-        paddingHorizontal: paddingHorizontal,
-        startAt: startAt,
-        selectedAt: selectedAt);
+    return _AmendTimelineItemState();
   }
 }
 
 class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
-  _AmendTimelineItemState({
-    required this.index,
-    required this.paddingHorizontal,
-    required this.startAt,
-    this.selectedAt,
-  });
-
-  final int index;
-  final double paddingHorizontal;
-  final DateTime startAt;
-  DateTime? selectedAt;
-
-  bool? _showTitle = true;
-
-  DateTimePickerLocale? _locale = DateTimePickerLocale.zh_cn;
+  DateTimePickerLocale _locale = DateTimePickerLocale.zh_cn;
 
   String? _dateTimePickerFormat;
 
@@ -56,17 +38,17 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
     }
     DatePicker.showDatePicker(
       context,
-      minDateTime: startAt,
-      initialDateTime: selectedAt,
+      minDateTime: widget.startAt,
+      initialDateTime: widget.selectedAt,
       dateFormat: _dateTimePickerFormat,
       locale: _locale!,
       pickerTheme: DateTimePickerTheme(
-        showTitle: _showTitle!,
+        showTitle: true!,
       ),
       pickerMode: DateTimePickerMode.datetime,
       onConfirm: (dateTime, List<int> index) {
         setState(() {
-          selectedAt = dateTime;
+          widget.selectedAt = dateTime;
         });
       },
     );
@@ -77,8 +59,8 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
     const radius = BorderRadius.all(Radius.circular(15.0));
     return Container(
         decoration: BoxDecoration(color: colorPrimary6),
-        padding:
-            EdgeInsets.fromLTRB(paddingHorizontal, 0, paddingHorizontal, 0),
+        padding: EdgeInsets.fromLTRB(
+            widget.paddingHorizontal, 0, widget.paddingHorizontal, 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -99,7 +81,7 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
                             color: colorPrimary3, borderRadius: radius),
-                        child: Text("${index + 1}",
+                        child: Text("${widget.index + 1}",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
@@ -128,7 +110,7 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
                             decoration: const BoxDecoration(
                                 color: colorPrimary3, borderRadius: radius),
                             alignment: Alignment.center,
-                            child: Text(_format.format(selectedAt!),
+                            child: Text(_format.format(widget.selectedAt!),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -145,11 +127,16 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
   }
 }
 
-class AmendTimelineWidget extends StatelessWidget {
+class AmendTimelineWidget extends StatefulWidget {
   AmendTimelineWidget({this.paddingHorizontal});
 
   double? paddingHorizontal = 10;
 
+  @override
+  State<AmendTimelineWidget> createState() => _AmendTimelineWidgetState();
+}
+
+class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
   @override
   Widget build(BuildContext context) {
     var nowAt = DateTime.now();
@@ -159,7 +146,7 @@ class AmendTimelineWidget extends StatelessWidget {
         var selectedAt = timelines[index];
         return AmendTimelineItemWidget(
           index: index,
-          paddingHorizontal: paddingHorizontal!,
+          paddingHorizontal: widget.paddingHorizontal!,
           startAt: nowAt,
           selectedAt: selectedAt,
         );
