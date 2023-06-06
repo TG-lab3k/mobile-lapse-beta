@@ -32,7 +32,8 @@ class AmendTimelineItemWidget extends StatelessWidget {
       pickerTheme: DateTimePickerTheme(
         showTitle: _showTitle!,
       ),
-      pickerMode: DateTimePickerMode.datetime, // show TimePicker
+      pickerMode: DateTimePickerMode.datetime,
+      // show TimePicker
       onCancel: () {
         debugPrint('onCancel');
       },
@@ -119,10 +120,10 @@ class AmendTimelineItemWidget extends StatelessWidget {
 class AmendTimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: 8,
-        itemBuilder: (BuildContext context, int index) {
-          return AmendTimelineItemWidget(index);
-        });
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+        return AmendTimelineItemWidget(index);
+      }, childCount: 8),
+    );
   }
 }
