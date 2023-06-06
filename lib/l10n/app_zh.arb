@@ -3,5 +3,6 @@
   "memAddedTitle": "新增",
   "memAddedTitleHint":"请输入名称",
   "memAddedContentHint":"请输入内容",
-  "memAddedSubmit":"添加"
+  "memAddedSubmit":"添加",
+  "memAddedDateTimeFormat":"yy年-M月-d日 H时:m分"
 }

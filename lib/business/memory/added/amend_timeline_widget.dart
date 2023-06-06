@@ -1,49 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:lapse/business/memory/added/learning_curve.dart';
+import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
-import 'package:lapse/widget/toasts.dart';
 
-const String MIN_DATETIME = '2010-05-15 09:23:10';
-const String MAX_DATETIME = '2019-06-03 21:11:00';
-const String INIT_DATETIME = '2023-05-20 09:30:00';
+final DateFormat _format = DateFormat('yyyy-MM-dd HH:mm');
 
-//https://github.com/search?q=flutter+DatePicker
-
-class AmendTimelineItemWidget extends StatelessWidget {
-  AmendTimelineItemWidget(
-      {required this.index, required this.paddingHorizontal});
+class AmendTimelineItemWidget extends StatefulWidget {
+  AmendTimelineItemWidget({
+    required this.index,
+    required this.paddingHorizontal,
+    required this.startAt,
+    this.selectedAt,
+  });
 
   final int index;
   final double paddingHorizontal;
+  final DateTime startAt;
+  DateTime? selectedAt;
+
+  @override
+  State createState() {
+    return _AmendTimelineItemState(
+        index: index,
+        paddingHorizontal: paddingHorizontal,
+        startAt: startAt,
+        selectedAt: selectedAt);
+  }
+}
+
+class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
+  _AmendTimelineItemState({
+    required this.index,
+    required this.paddingHorizontal,
+    required this.startAt,
+    this.selectedAt,
+  });
+
+  final int index;
+  final double paddingHorizontal;
+  final DateTime startAt;
+  DateTime? selectedAt;
 
   bool? _showTitle = true;
 
   DateTimePickerLocale? _locale = DateTimePickerLocale.zh_cn;
 
-  late DateTime _dateTime = DateTime.parse(INIT_DATETIME);
+  String? _dateTimePickerFormat;
 
   void _showDateTimePicker(BuildContext context) {
+    if (_dateTimePickerFormat == null) {
+      _dateTimePickerFormat = TextI18ns.from(context).memAddedDateTimeFormat;
+    }
     DatePicker.showDatePicker(
       context,
-      minDateTime: DateTime.parse(MIN_DATETIME),
-      maxDateTime: DateTime.now(),
-      initialDateTime: _dateTime,
-      dateFormat: "M月-d日 H时:m分",
+      minDateTime: startAt,
+      initialDateTime: selectedAt,
+      dateFormat: _dateTimePickerFormat,
       locale: _locale!,
       pickerTheme: DateTimePickerTheme(
         showTitle: _showTitle!,
       ),
       pickerMode: DateTimePickerMode.datetime,
-      // show TimePicker
-      onCancel: () {
-        debugPrint('onCancel');
-      },
-      onChange: (dateTime, List<int> index) {
-        //Toasts.toast(_dateTime.toString());
-      },
       onConfirm: (dateTime, List<int> index) {
-        Toasts.toast(_dateTime.toString());
+        setState(() {
+          selectedAt = dateTime;
+        });
       },
     );
   }
@@ -104,13 +128,12 @@ class AmendTimelineItemWidget extends StatelessWidget {
                             decoration: const BoxDecoration(
                                 color: colorPrimary3, borderRadius: radius),
                             alignment: Alignment.center,
-                            child: const Text("2023-05-28 00:18",
+                            child: Text(_format.format(selectedAt!),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
                                 ))),
                         listener: (Widget hostWidget) {
-                          Toasts.toast("第$index的Item被点击");
                           _showDateTimePicker(context);
                         }),
                   ),
@@ -129,13 +152,18 @@ class AmendTimelineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var nowAt = DateTime.now();
+    var timelines = LearningCurve.memoryCurve(nowAt);
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+        var selectedAt = timelines[index];
         return AmendTimelineItemWidget(
           index: index,
           paddingHorizontal: paddingHorizontal!,
+          startAt: nowAt,
+          selectedAt: selectedAt,
         );
-      }, childCount: 8),
+      }, childCount: timelines.length),
     );
   }
 }
