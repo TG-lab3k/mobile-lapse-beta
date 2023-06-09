@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
+import 'package:lapse/business/memory/repository/database/database_repository.dart';
+import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/memory/repository/database/tenant.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/widget/skeleton.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -19,6 +23,10 @@ const double paddingTop = 15;
 class _AddedPageState extends State<AddedPage> {
   final itemKey = UniqueKey();
   final TextEditingController _titleEditingController = TextEditingController();
+  final TextEditingController _contentEditingController =
+      TextEditingController();
+
+  final Map<int, DateTime> _timelineMap = {};
 
   @override
   void initState() {
@@ -75,7 +83,7 @@ class _AddedPageState extends State<AddedPage> {
                             keyboardType: TextInputType.text,
                             controller: _titleEditingController,
                           )),
-                      Container (
+                      Container(
                         margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                         decoration: const BoxDecoration(
                             color: colorPrimary5,
@@ -84,6 +92,7 @@ class _AddedPageState extends State<AddedPage> {
                           minLines: 8,
                           maxLines: 8,
                           style: textFieldStyle,
+                          controller: _contentEditingController,
                           decoration: buildInputDecoration(
                               localizations.memAddedContentHint),
                         ),
@@ -95,7 +104,10 @@ class _AddedPageState extends State<AddedPage> {
         CustomScrollView(
           slivers: [
             topWidget,
-            AmendTimelineWidget(paddingHorizontal: paddingStart * 2),
+            AmendTimelineWidget(
+              paddingHorizontal: paddingStart * 2,
+              timelineMap: _timelineMap,
+            ),
           ],
         ),
         Positioned(
@@ -105,7 +117,7 @@ class _AddedPageState extends State<AddedPage> {
               onPressed: () {
                 print(
                     "-----MaterialButton------: ${_titleEditingController.value.text}");
-                Toasts.toast(_titleEditingController.value.text);
+                _createMemoryContent();
               },
               child: Text(localizations.memAddedSubmit),
             ),
@@ -115,5 +127,37 @@ class _AddedPageState extends State<AddedPage> {
     );
 
     return contentWidget;
+  }
+
+  List<DateTime> _getDateTimes() {
+    List<DateTime> dateTimes = [];
+    _timelineMap.values.forEach((selectedAt) {
+      dateTimes.add(selectedAt);
+    });
+    return dateTimes;
+  }
+
+  _createMemoryContent() async {
+    var title = _titleEditingController.value.text;
+    var content = _contentEditingController.value.text;
+
+    var times = _getDateTimes();
+    List<ScheduleBo> schedules = [];
+    times.forEach((time) {
+      var scheduleBo = ScheduleBo(
+          actionAt: time.millisecondsSinceEpoch,
+          status: ScheduleStatus.idle.index);
+      schedules.add(scheduleBo);
+    });
+
+    TenantBo tenantBo = TenantBo(id: 1);
+
+    MemoryContentBo memoryContentBo = MemoryContentBo(
+        title: title, content: content, tenant: tenantBo, schedules: schedules);
+
+    DatabaseRepository repository = DatabaseRepository();
+    repository.createMemoryContent(memoryContentBo);
+    //TODO
+    Toasts.toast("创建成功");
   }
 }

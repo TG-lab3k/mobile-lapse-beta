@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lapse/business/memory/added/added_page.dart';
+import 'package:lapse/infra/data/database/database_helper.dart';
 import 'package:lapse/widget/toasts.dart';
 
 void main() {
@@ -21,6 +22,7 @@ class _LapseAppState extends State<LapseApp> {
   void initState() {
     super.initState();
     Toasts.initialize(context);
+    DatabaseHelper().initialize();
   }
 
   @override

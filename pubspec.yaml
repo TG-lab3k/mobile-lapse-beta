@@ -42,6 +42,14 @@ dependencies:
   cupertino_icons: ^1.0.2
   fluttertoast: ^8.2.2
   flutter_cupertino_datetime_picker: ^3.0.0
+  sqlite3_flutter_libs: ^0.5.15
+  path_provider: ^2.0.15
+  path: ^1.8.2
+  sqlite3: ^1.11.2
+  ffi: ^2.0.2
+  meta: ^1.8.0
+  js: ^0.6.4
+  collection: ^1.16.0
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +61,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner: ^2.3.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

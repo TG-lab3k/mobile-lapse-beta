@@ -9,21 +9,27 @@ import 'package:lapse/widget/clickable.dart';
 final DateFormat _format = DateFormat('yyyy-MM-dd HH:mm');
 
 class AmendTimelineItemWidget extends StatefulWidget {
-  AmendTimelineItemWidget({
-    required this.index,
-    required this.paddingHorizontal,
-    required this.startAt,
-    this.selectedAt,
-  });
+  AmendTimelineItemWidget(
+      {required this.index,
+      required this.paddingHorizontal,
+      required this.startAt,
+      required this.selectedAt,
+      required this.timelineMap});
 
   final int index;
   final double paddingHorizontal;
   final DateTime startAt;
   DateTime? selectedAt;
+  final Map<int, DateTime> timelineMap;
 
   @override
   State createState() {
     return _AmendTimelineItemState();
+  }
+
+  _updateSelectedAt(DateTime newSelectedAt) {
+    this.selectedAt = newSelectedAt;
+    this.timelineMap[index] = newSelectedAt;
   }
 }
 
@@ -43,12 +49,12 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
       dateFormat: _dateTimePickerFormat,
       locale: _locale!,
       pickerTheme: DateTimePickerTheme(
-        showTitle: true!,
+        showTitle: true,
       ),
       pickerMode: DateTimePickerMode.datetime,
       onConfirm: (dateTime, List<int> index) {
         setState(() {
-          widget.selectedAt = dateTime;
+          widget._updateSelectedAt(dateTime);
         });
       },
     );
@@ -128,9 +134,10 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
 }
 
 class AmendTimelineWidget extends StatefulWidget {
-  AmendTimelineWidget({this.paddingHorizontal});
+  AmendTimelineWidget({this.paddingHorizontal, required this.timelineMap});
 
   double? paddingHorizontal = 10;
+  final Map<int, DateTime> timelineMap;
 
   @override
   State<AmendTimelineWidget> createState() => _AmendTimelineWidgetState();
@@ -141,14 +148,17 @@ class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
   Widget build(BuildContext context) {
     var nowAt = DateTime.now();
     var timelines = LearningCurve.memoryCurve(nowAt);
+    widget.timelineMap.clear();
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         var selectedAt = timelines[index];
+        widget.timelineMap[index] = selectedAt;
         return AmendTimelineItemWidget(
           index: index,
           paddingHorizontal: widget.paddingHorizontal!,
           startAt: nowAt,
           selectedAt: selectedAt,
+          timelineMap: widget.timelineMap,
         );
       }, childCount: timelines.length),
     );
