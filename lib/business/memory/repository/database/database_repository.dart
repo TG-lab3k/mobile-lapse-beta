@@ -67,11 +67,29 @@ class DatabaseRepository {
     return memoryContentBo;
   }
 
-  List<TagModel> transformTags(List<TagBo> tagBoList, int tenantId) {
-    List<TagModel> tagModelList = [];
-    for (var tagBo in tagBoList) {
-      tagModelList.add(TagModel(tag: tagBo.tag, tenantId: tenantId));
+  Future<List<MemoryContentBo>> listMemoryContent(List<int> tenantIds) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    List<MemoryContentModel> contentModelList =
+        await databaseHelper.listMemoryContent(tenantIds);
+    var contentBoList = transformMemoryContent(contentModelList);
+    return contentBoList;
+  }
+
+  List<MemoryContentBo> transformMemoryContent(
+      List<MemoryContentModel> contentModelList) {
+    List<MemoryContentBo> contentBoList = [];
+    for (var contentModel in contentModelList) {
+      contentBoList.add(MemoryContentBo(
+          title: contentModel.title,
+          content: contentModel.content,
+          id: contentModel.id,
+          serverId: contentModel.serverId,
+          serverCreateAt: contentModel.serverCreateAt,
+          serverUpdateAt: contentModel.serverUpdateAt,
+          createAt: contentModel.createAt,
+          updateAt: contentModel.updateAt));
     }
-    return tagModelList;
+
+    return contentBoList;
   }
 }

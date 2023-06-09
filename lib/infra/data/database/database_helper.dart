@@ -245,6 +245,15 @@ class DatabaseHelper {
     });
   }
 
+  Future<List<MemoryContentModel>> listMemoryContent(
+      List<int> tenantIds) async {
+    var database = getWriteDatabase();
+    var sql = _SQL.sqlMemoryContentSelectList(tenantIds);
+    var results = await database.rawQuery(sql, tenantIds);
+    var contents = mappingMemoryContent(results);
+    return contents;
+  }
+
   List<TagModel> mappingTagModel(List<Map> results) {
     List<TagModel> tags = [];
     for (Map row in results) {
@@ -265,16 +274,30 @@ class DatabaseHelper {
     return tags;
   }
 
+  List<MemoryContentModel> mappingMemoryContent(List<Map> results) {
+    List<MemoryContentModel> contents = [];
+    for (Map row in results) {
+      contents.add(MemoryContentModel(
+        id:row[_id],
+        title: row[_title],
+        content: row[_content],
+        tenantId: row[_tenantId],
+        serverId: row[_serverId],
+        serverCreateAt: row[_serverCreateAt],
+        serverUpdateAt: row[_serverUpdateAt],
+        createAt: row[_createAt],
+        updateAt: row[_updateAt],
+      ));
+    }
+    return contents;
+  }
+
   int mappingLastRowId(List<Map> results) {
     return results.first[_lastRowId];
   }
 }
 
 class _SQL {
-  static String sqlTagInsert() {
-    return _buildCreateSql(TagModel.tableName, [_tag, _tenantId]);
-  }
-
   static String sqlTagSelectWithTag(List<String> tagLabels) {
     var builder = StringBuffer();
     tagLabels.forEach((tag) {
@@ -287,13 +310,85 @@ class _SQL {
     return '''SELECT * FROM ${TagModel.tableName} WHERE $_tag in ($parameters)''';
   }
 
+  static String sqlTagSelectAll() {
+    return _buildSelectSql(TagModel.tableName, [
+      _id,
+      _tag,
+      _num,
+      _tenantId,
+      _serverId,
+      _serverCreateAt,
+      _serverUpdateAt,
+      _createAt,
+      _updateAt
+    ]);
+  }
+
+  static String sqlMemoryContentSelectList(List<int> tenantIds) {
+    var whereBuilder = StringBuffer();
+    for (int i = 0; i < tenantIds.length; i++) {
+      whereBuilder.write(",?");
+    }
+    var whereArgs = whereBuilder.toString().substring(1);
+    return _buildSelectSql(
+        MemoryContentModel.tableName,
+        [
+          _id,
+          _title,
+          _content,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt
+        ],
+        where: "$_tenantId in($whereArgs)");
+  }
+
+  static String sqlScheduleWithContent() {
+    return _buildSelectSql(
+        ScheduleModel.tableName,
+        [
+          _id,
+          _actionAt,
+          _memoryId,
+          _status,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt
+        ],
+        where: "$_memoryId = ?");
+  }
+
+  static String _buildSelectSql(String tableName, List<String> columns,
+      {String? where}) {
+    var columnString = StringBuffer()
+      ..writeAll(columns, ",")
+      ..toString();
+
+    var sqlBuilder = StringBuffer("SELECT $columnString FROM $tableName");
+    var length = where?.length;
+    if (length != null && length > 0) {
+      sqlBuilder.write(" WHERE $where");
+    }
+    return sqlBuilder.toString();
+  }
+
+  static String sqlMemoryContentLastRowId() {
+    return "SELECT max(rowid) as $_lastRowId FROM ${MemoryContentModel.tableName}";
+  }
+
   static String sqlMemoryContentInsert() {
     return _buildCreateSql(
         MemoryContentModel.tableName, [_title, _content, _tenantId]);
   }
 
-  static String sqlMemoryContentLastRowId() {
-    return "SELECT max(rowid) as $_lastRowId FROM ${MemoryContentModel.tableName}";
+  static String sqlTagInsert() {
+    return _buildCreateSql(TagModel.tableName, [_tag, _tenantId]);
   }
 
   static String sqlScheduleInsert() {

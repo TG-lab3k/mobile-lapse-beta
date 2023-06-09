@@ -156,7 +156,7 @@ class _AddedPageState extends State<AddedPage> {
         title: title, content: content, tenant: tenantBo, schedules: schedules);
 
     DatabaseRepository repository = DatabaseRepository();
-    repository.createMemoryContent(memoryContentBo);
+    await repository.createMemoryContent(memoryContentBo);
     //TODO
     Toasts.toast("创建成功");
   }
