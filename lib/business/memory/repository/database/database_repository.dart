@@ -5,11 +5,10 @@ import 'package:lapse/business/memory/repository/database/tag.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
 import 'package:lapse/infra/data/database/database_helper.dart';
 import 'package:lapse/infra/data/database/model/memory_model.dart';
-import 'package:sqlite3/sqlite3.dart';
 
 class DatabaseRepository {
-
-  MemoryContentBo createMemoryContent(MemoryContentBo memoryContentBo) {
+  Future<MemoryContentBo> createMemoryContent(
+      MemoryContentBo memoryContentBo) async {
     final TenantBo? tenantBo = memoryContentBo.tenant;
     if (tenantBo == null || tenantBo.id == null) {
       return memoryContentBo;
@@ -18,79 +17,61 @@ class DatabaseRepository {
     //update tag
     List<int> tagIds = [];
     List<TagBo>? tags = memoryContentBo.tags;
-    List<TagBo> newTags = [];
+    List<TagModel> newTags = [];
     tags?.forEach((tag) {
       if (tag.id != null) {
         tagIds.add(tag.id!);
       } else if (tag.tag != null) {
-        newTags.add(tag);
+        newTags.add(TagModel(tag: tag.tag, tenantId: tenantBo.id));
       }
     });
 
     final DatabaseHelper databaseHelper = DatabaseHelper();
-    final Database database = databaseHelper.getWriteDatabase();
-    try{
-      //Tag
-      if (newTags.isNotEmpty) {
-        var insertSql = databaseHelper.sqlTagInsert();
-        var statement = database.prepare(insertSql);
-        List<String> tagLabels = [];
-        newTags.forEach((newTag) {
-          tagLabels.add(newTag.tag!);
-          statement.execute([newTag.tag, tenantBo.id]);
-        });
-        statement.dispose();
+    //Tag
+    if (newTags.isNotEmpty) {
+      newTags = await databaseHelper.createTags(newTags);
+      newTags.forEach((newTag) {
+        tagIds.add(newTag.id!);
+      });
+    }
 
-        //
-        var selectSql = databaseHelper.sqlTagSelectWithTag(tagLabels);
-        statement = database.prepare(selectSql);
-        var resultSet = statement.select(tagLabels);
-        List<TagModel> tagModels = databaseHelper.mappingTagModel(resultSet);
-        tagModels.forEach((tagModel) {
-          tagIds.add(tagModel.id!);
-        });
-        statement.dispose();
-      }
+    //Content
+    var contentModel = await databaseHelper.createContent(MemoryContentModel(
+        title: memoryContentBo.title,
+        content: memoryContentBo.content,
+        tenantId: tenantBo.id));
+    memoryContentBo.id = contentModel.id;
 
-      //Content
-      var insertSql = databaseHelper.sqlMemoryContentInsert();
-      var statement = database.prepare(insertSql);
-      statement
-          .execute([memoryContentBo.title, memoryContentBo.content, tenantBo.id]);
-      statement.dispose();
-      var sql = databaseHelper.sqlMemoryContentLastRowId();
-      var resultSet = database.select(sql);
-      var lastRowId = databaseHelper.mappingLastRowId(resultSet);
-      memoryContentBo.id = lastRowId;
+    //Tag mapping
+    if (tagIds.isNotEmpty) {
+      await databaseHelper.createTagMapping(
+          contentModel.id!, tagIds, tenantBo.id!);
+    }
 
-      //Tag mapping
-      if (tagIds.isNotEmpty) {
-        insertSql = databaseHelper.sqlTagMappingInsert();
-        statement = database.prepare(insertSql);
-        tagIds.forEach((tagId) {
-          statement.execute([tagId, lastRowId, tenantBo.id]);
-        });
-      }
-
-      //Schedule
-      var schedules = memoryContentBo.schedules;
-      if (schedules?.isNotEmpty == true) {
-        insertSql = databaseHelper.sqlScheduleInsert();
-        statement = database.prepare(insertSql);
-        schedules?.forEach((schedule) {
-          statement.execute([
-            schedule.actionAt,
-            memoryContentBo.id,
-            schedule.status,
-            tenantBo.id
-          ]);
-        });
-        statement.dispose();
-      }
-    }finally{
-      databaseHelper.release(database);
+    //Schedule
+    var schedules = memoryContentBo.schedules;
+    if (schedules?.isNotEmpty == true) {
+      List<ScheduleModel> scheduleModelList = [];
+      var scheduleBoList = memoryContentBo.schedules;
+      scheduleBoList?.forEach((scheduleBo) {
+        scheduleModelList.add(ScheduleModel(
+            actionAt: scheduleBo.actionAt,
+            memoryId: memoryContentBo.id!,
+            status: scheduleBo.status,
+            tenantId: tenantBo.id));
+      });
+      await databaseHelper.createSchedules(
+          memoryContentBo.id!, scheduleModelList, tenantBo.id!);
     }
 
     return memoryContentBo;
+  }
+
+  List<TagModel> transformTags(List<TagBo> tagBoList, int tenantId) {
+    List<TagModel> tagModelList = [];
+    for (var tagBo in tagBoList) {
+      tagModelList.add(TagModel(tag: tagBo.tag, tenantId: tenantId));
+    }
+    return tagModelList;
   }
 }
