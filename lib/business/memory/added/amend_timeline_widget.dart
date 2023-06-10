@@ -8,8 +8,8 @@ import 'package:lapse/widget/clickable.dart';
 
 final DateFormat _format = DateFormat('yyyy-MM-dd HH:mm');
 
-class AmendTimelineItemWidget extends StatefulWidget {
-  AmendTimelineItemWidget(
+class _AmendTimelineItemWidget extends StatefulWidget {
+  _AmendTimelineItemWidget(
       {required this.index,
       required this.paddingHorizontal,
       required this.startAt,
@@ -27,13 +27,13 @@ class AmendTimelineItemWidget extends StatefulWidget {
     return _AmendTimelineItemState();
   }
 
-  _updateSelectedAt(DateTime newSelectedAt) {
+  void _updateSelectedAt(DateTime newSelectedAt) {
     this.selectedAt = newSelectedAt;
     this.timelineMap[index] = newSelectedAt;
   }
 }
 
-class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
+class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
   DateTimePickerLocale _locale = DateTimePickerLocale.zh_cn;
 
   String? _dateTimePickerFormat;
@@ -71,7 +71,6 @@ class _AmendTimelineItemState extends State<AmendTimelineItemWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              //decoration: const BoxDecoration(color: colorPrimary2),
               child: Stack(
                 children: [
                   Container(
@@ -153,7 +152,7 @@ class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         var selectedAt = timelines[index];
         widget.timelineMap[index] = selectedAt;
-        return AmendTimelineItemWidget(
+        return _AmendTimelineItemWidget(
           index: index,
           paddingHorizontal: widget.paddingHorizontal!,
           startAt: nowAt,

@@ -71,11 +71,11 @@ class DatabaseRepository {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<MemoryContentModel> contentModelList =
         await databaseHelper.listMemoryContent(tenantIds);
-    var contentBoList = transformMemoryContent(contentModelList);
+    var contentBoList = _transformMemoryContent(contentModelList);
     return contentBoList;
   }
 
-  List<MemoryContentBo> transformMemoryContent(
+  List<MemoryContentBo> _transformMemoryContent(
       List<MemoryContentModel> contentModelList) {
     List<MemoryContentBo> contentBoList = [];
     for (var contentModel in contentModelList) {

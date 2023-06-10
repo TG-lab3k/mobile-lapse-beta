@@ -28,6 +28,7 @@ environment:
 # dependencies can be manually updated by changing the version numbers below to
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
+# https://dart.cn/tools/pub/dependencies#caret-syntax
 dependencies:
   flutter:
     sdk: flutter
@@ -39,12 +40,12 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  fluttertoast: ^8.2.2
-  flutter_cupertino_datetime_picker: ^3.0.0
-  # sqlite3_flutter_libs: ^0.5.15
-  # sqlite3: ^1.11.2
-  sqflite: ^2.2.8+4
+  cupertino_icons: 1.0.2
+  fluttertoast: 8.2.2
+  flutter_cupertino_datetime_picker: 3.0.0
+  sqflite: 2.2.8+4
+  go_router: 8.0.1
+  pull_to_refresh: 2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -55,8 +56,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
-  build_runner: ^2.3.3
+  flutter_lints: 2.0.0
+  build_runner: 2.3.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

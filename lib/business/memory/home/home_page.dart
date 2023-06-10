@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lapse/business/memory/added/added_page.dart';
+import 'package:lapse/business/memory/home/home_timeline_widget.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/toasts.dart';
-
 
 class MemoryHomePage extends StatefulWidget {
   const MemoryHomePage({super.key, this.title});
@@ -32,7 +31,7 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
         height: double.infinity,
         decoration: const BoxDecoration(color: colorPrimary5),
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
-        child: AddedPage(), //HomeTimelineItemWidget(),
+        child: HomeTimelineWidget(),
       ),
     );
   }
