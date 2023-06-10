@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:lapse/business/memory/home/home_service.dart';
+import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 const double heightItem = 15;
 
 class HomeTimelineItemWidget extends StatefulWidget {
+  MemoryContentBo memoryContentBo;
+
+  HomeTimelineItemWidget(this.memoryContentBo);
+
   @override
   State createState() => _HomeTimelineItemState();
 }
@@ -14,6 +20,10 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
   Widget build(BuildContext context) {
     const radius = BorderRadius.all(Radius.circular(15.0));
 
+    var memoryTitle = widget.memoryContentBo.title;
+    var title = memoryTitle != null ? memoryTitle! : "";
+    var memoryContent = widget.memoryContentBo.content;
+    var content = memoryContent != null ? memoryContent! : "";
     return Container(
       decoration: const BoxDecoration(
           color: colorPrimary6,
@@ -23,11 +33,9 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
         children: [
           Container(
             alignment: Alignment.centerLeft,
-            child: const Text("第一组"),
+            child: Text(title),
           ),
-          Container(
-              alignment: Alignment.centerLeft,
-              child: const Text("cap, baby, yes")),
+          Container(alignment: Alignment.centerLeft, child: Text(content)),
           Container(
             decoration: const BoxDecoration(color: colorPrimary2),
             child: Stack(
@@ -73,6 +81,10 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
 }
 
 class HomeTimelineWidget extends StatefulWidget {
+  HomeState? homeState;
+
+  HomeTimelineWidget({this.homeState});
+
   @override
   State createState() => _HomeTimelineState();
 }
@@ -94,10 +106,13 @@ class _HomeTimelineState extends State<HomeTimelineWidget> {
   }
 
   Widget _buildTimelineContent() {
+    List<MemoryContentBo>? memoryContents = widget.homeState?.memoryContents;
+    var contents = memoryContents != null ? memoryContents : [];
+
     return ListView.builder(
-        itemCount: 2,
+        itemCount: contents.length,
         itemBuilder: (BuildContext context, int index) {
-          return HomeTimelineItemWidget();
+          return HomeTimelineItemWidget(contents[index]);
         });
   }
 }

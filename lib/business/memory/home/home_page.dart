@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lapse/business/memory/home/home_service.dart';
 import 'package:lapse/business/memory/home/home_timeline_widget.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/toasts.dart';
@@ -23,15 +25,22 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title!),
-      ),
-      body: Container(
-        height: double.infinity,
-        decoration: const BoxDecoration(color: colorPrimary5),
-        padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
-        child: HomeTimelineWidget(),
+    return BlocProvider(
+      create: (_) => HomeService()..listMemoryContents(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title!),
+        ),
+        body: BlocBuilder<HomeService, HomeState>(
+          builder: (context, homeState) => Container(
+            height: double.infinity,
+            decoration: const BoxDecoration(color: colorPrimary5),
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
+            child: HomeTimelineWidget(
+              homeState: homeState,
+            ),
+          ),
+        ),
       ),
     );
   }
