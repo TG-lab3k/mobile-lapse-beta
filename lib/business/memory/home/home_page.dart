@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/home/home_service.dart';
 import 'package:lapse/business/memory/home/home_timeline_widget.dart';
+import 'package:lapse/infra/asset/assets.dart';
+import 'package:lapse/infra/data/database/database_helper.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/toasts.dart';
 
 class MemoryHomePage extends StatefulWidget {
-  const MemoryHomePage({super.key, this.title});
-
-  final String? title;
+  const MemoryHomePage({super.key});
 
   @override
   State<StatefulWidget> createState() => _MemoryHomePageState();
@@ -29,7 +30,19 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
       create: (_) => HomeService()..listMemoryContents(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title!),
+          elevation: 0,
+          title: Center(
+            child: Text("Lapse"),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Assets.image("added.png"),
+              tooltip: '新增',
+              onPressed: () {
+                context.go("/lapse/memory/added");
+              },
+            ),
+          ],
         ),
         body: BlocBuilder<HomeService, HomeState>(
           builder: (context, homeState) => Container(

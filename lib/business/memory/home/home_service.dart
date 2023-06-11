@@ -13,7 +13,7 @@ class HomeService extends Cubit<HomeState> {
 
   HomeService() : super(HomeState());
 
-  void listMemoryContents() {
+  void listMemoryContents() async {
     _databaseRepository.listMemoryContent([1]).then((contentList) {
       emit(HomeState(memoryContents: contentList));
     });

@@ -36,43 +36,40 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
             child: Text(title),
           ),
           Container(alignment: Alignment.centerLeft, child: Text(content)),
-          Container(
-            decoration: const BoxDecoration(color: colorPrimary2),
-            child: Stack(
-              children: [
+          Stack(
+            children: [
+              Container(
+                height: heightItem,
+                alignment: Alignment.center,
+                child: const Divider(height: 2.0, color: colorPrimary5),
+              ),
+              Row(children: [
                 Container(
-                  height: heightItem,
-                  alignment: Alignment.center,
-                  child: const Divider(height: 2.0, color: colorPrimary5),
-                ),
-                Row(children: [
-                  Container(
-                      height: heightItem,
-                      width: heightItem,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                          color: colorPrimary1, borderRadius: radius),
-                      child: const Text("1",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ))),
-                  Container(
-                      height: heightItem,
-                      width: heightItem,
-                      margin: const EdgeInsets.only(left: 20),
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                          color: colorPrimary3, borderRadius: radius),
-                      child: const Text("2",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                          )))
-                ])
-              ],
-            ),
+                    height: heightItem,
+                    width: heightItem,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                        color: colorPrimary1, borderRadius: radius),
+                    child: const Text("1",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ))),
+                Container(
+                    height: heightItem,
+                    width: heightItem,
+                    margin: const EdgeInsets.only(left: 20),
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                        color: colorPrimary3, borderRadius: radius),
+                    child: const Text("2",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                        )))
+              ])
+            ],
           )
         ],
       ),

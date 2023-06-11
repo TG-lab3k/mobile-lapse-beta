@@ -11,6 +11,8 @@ import 'package:lapse/widget/toasts.dart';
 import 'package:lapse/theme/colors.dart';
 
 class AddedPage extends StatefulWidget {
+  const AddedPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _AddedPageState();

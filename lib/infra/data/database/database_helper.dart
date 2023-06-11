@@ -1,6 +1,6 @@
 import 'package:lapse/infra/data/database/model/memory_model.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 const _id = "id";
 const _serverId = "serverId";
@@ -36,9 +36,8 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   Database? _database;
-  Batch? _batch;
 
-  initialize() async {
+  Future<void> initialize() async {
     if (_database != null) {
       return;
     }
@@ -48,7 +47,10 @@ class DatabaseHelper {
         version: _databaseVersion, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
-  Database getWriteDatabase() {
+  Future<Database> getWriteDatabase() async {
+    if (_database == null) {
+      await initialize();
+    }
     return _database!;
   }
 
@@ -146,21 +148,8 @@ class DatabaseHelper {
     //do nothing
   }
 
-  Batch startTransaction() {
-    Database database = getWriteDatabase();
-    var newBatch = database.batch();
-    _batch = newBatch;
-    return _batch!;
-  }
-
-  commitTransaction() {
-    var batch = _batch;
-    _batch = null;
-    batch?.commit();
-  }
-
   Future<List<TagModel>> createTags(List<TagModel> tags) async {
-    Database database = getWriteDatabase();
+    Database database = await getWriteDatabase();
     await database.transaction((txn) async {
       var sql = _SQL.sqlTagInsert();
       var nowAt = DateTime.now().millisecondsSinceEpoch;
@@ -186,7 +175,7 @@ class DatabaseHelper {
 
   Future<MemoryContentModel> createContent(
       MemoryContentModel contentModel) async {
-    Database database = getWriteDatabase();
+    Database database = await getWriteDatabase();
     await database.transaction((txn) async {
       var sql = _SQL.sqlMemoryContentInsert();
       var nowAt = DateTime.now().millisecondsSinceEpoch;
@@ -206,7 +195,7 @@ class DatabaseHelper {
   }
 
   createTagMapping(int contentId, List<int> tagIds, int tenantId) async {
-    Database database = getWriteDatabase();
+    Database database = await getWriteDatabase();
     await database.transaction((txn) async {
       var batch = txn.batch();
       try {
@@ -223,7 +212,7 @@ class DatabaseHelper {
 
   createSchedules(
       int contentId, List<ScheduleModel> schedules, int tenantId) async {
-    Database database = getWriteDatabase();
+    Database database = await getWriteDatabase();
     await database.transaction((txn) async {
       var batch = txn.batch();
       try {
@@ -247,7 +236,7 @@ class DatabaseHelper {
 
   Future<List<MemoryContentModel>> listMemoryContent(
       List<int> tenantIds) async {
-    var database = getWriteDatabase();
+    var database = await getWriteDatabase();
     var sql = _SQL.sqlMemoryContentSelectList(tenantIds);
     var results = await database.rawQuery(sql, tenantIds);
     var contents = mappingMemoryContent(results);
@@ -278,7 +267,7 @@ class DatabaseHelper {
     List<MemoryContentModel> contents = [];
     for (Map row in results) {
       contents.add(MemoryContentModel(
-        id:row[_id],
+        id: row[_id],
         title: row[_title],
         content: row[_content],
         tenantId: row[_tenantId],
