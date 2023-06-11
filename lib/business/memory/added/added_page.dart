@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
 import 'package:lapse/business/memory/repository/database/database_repository.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
@@ -119,7 +120,7 @@ class _AddedPageState extends State<AddedPage> {
               onPressed: () {
                 print(
                     "-----MaterialButton------: ${_titleEditingController.value.text}");
-                _createMemoryContent();
+                _createMemoryContent(context);
               },
               child: Text(localizations.memAddedSubmit),
             ),
@@ -139,7 +140,7 @@ class _AddedPageState extends State<AddedPage> {
     return dateTimes;
   }
 
-  _createMemoryContent() async {
+  _createMemoryContent(BuildContext context) async {
     var title = _titleEditingController.value.text;
     var content = _contentEditingController.value.text;
 
@@ -159,7 +160,7 @@ class _AddedPageState extends State<AddedPage> {
 
     DatabaseRepository repository = DatabaseRepository();
     await repository.createMemoryContent(memoryContentBo);
-    //TODO
     Toasts.toast("创建成功");
+    context.go("/");
   }
 }

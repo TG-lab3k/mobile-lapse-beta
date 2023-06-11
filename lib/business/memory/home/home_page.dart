@@ -4,12 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/home/home_service.dart';
 import 'package:lapse/business/memory/home/home_timeline_widget.dart';
 import 'package:lapse/infra/asset/assets.dart';
-import 'package:lapse/infra/data/database/database_helper.dart';
+import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/toasts.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MemoryHomePage extends StatefulWidget {
-  const MemoryHomePage({super.key});
+  MemoryHomePage({super.key});
+
+  final HomeService _homeService = HomeService();
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   State<StatefulWidget> createState() => _MemoryHomePageState();
@@ -22,39 +27,63 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
   void initState() {
     super.initState();
     Toasts.initialize(context);
+    print("#MemoryHomePage# ------ @initState ");
+  }
+
+  @override
+  void didUpdateWidget(covariant MemoryHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print("#MemoryHomePage# ------ @didUpdateWidget ");
+    widget._refreshController.requestRefresh();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => HomeService()..listMemoryContents(),
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          title: Center(
-            child: Text("Lapse"),
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Assets.image("added.png"),
-              tooltip: '新增',
-              onPressed: () {
-                context.go("/lapse/memory/added");
-              },
-            ),
-          ],
+    print("#MemoryHomePage# ------ @build ");
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Center(
+          child: Text("Lapse"),
         ),
-        body: BlocBuilder<HomeService, HomeState>(
-          builder: (context, homeState) => Container(
-            height: double.infinity,
-            decoration: const BoxDecoration(color: colorPrimary5),
-            padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
-            child: HomeTimelineWidget(
-              homeState: homeState,
-            ),
+        actions: <Widget>[
+          IconButton(
+            icon: Assets.image("added.png"),
+            tooltip: TextI18ns.from(context).memAddedTitle,
+            onPressed: () {
+              context.go("/lapse/memory/added");
+            },
           ),
-        ),
+        ],
       ),
+      body: _buildBody(context),
     );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return BlocProvider(
+        create: (blocContext) => widget._homeService..listMemoryContents(),
+        child: BlocBuilder<HomeService, HomeState>(
+            builder: (blocContext, homeState) {
+          return SmartRefresher(
+            controller: widget._refreshController,
+            enablePullUp: true,
+            header: WaterDropMaterialHeader(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            onRefresh: () => _listHome(context),
+            child: Container(
+              height: double.infinity,
+              decoration: const BoxDecoration(color: colorPrimary5),
+              padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
+              child: HomeTimelineWidget(homeState: homeState),
+            ),
+            physics: BouncingScrollPhysics(),
+          );
+        }));
+  }
+
+  void _listHome(BuildContext context) {
+    widget._homeService.listMemoryContents();
   }
 }

@@ -15,8 +15,7 @@ final GoRouter _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: '/',
-      builder: (BuildContext context, GoRouterState state) =>
-          const MemoryHomePage(),
+      builder: (BuildContext context, GoRouterState state) => MemoryHomePage(),
       routes: <RouteBase>[
         GoRoute(
           path: 'lapse/memory/added',
