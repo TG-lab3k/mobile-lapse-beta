@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lapse/business/memory/added/added_service.dart';
 import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
 import 'package:lapse/business/memory/repository/database/database_repository.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
@@ -30,6 +31,7 @@ class _AddedPageState extends State<AddedPage> {
       TextEditingController();
 
   final Map<int, DateTime> _timelineMap = {};
+  final AddedService _addedService = AddedService();
 
   @override
   void initState() {
@@ -158,8 +160,8 @@ class _AddedPageState extends State<AddedPage> {
     MemoryContentBo memoryContentBo = MemoryContentBo(
         title: title, content: content, tenant: tenantBo, schedules: schedules);
 
-    DatabaseRepository repository = DatabaseRepository();
-    await repository.createMemoryContent(memoryContentBo);
+    String appName = TextI18ns.from(context).appName;
+    await _addedService.createMemoryContent(memoryContentBo, appName);
     Toasts.toast("创建成功");
     context.go("/");
   }
