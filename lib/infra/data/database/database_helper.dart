@@ -332,7 +332,7 @@ class _SQL {
           _createAt,
           _updateAt
         ],
-        where: "$_tenantId in($whereArgs)");
+        where: "$_tenantId in($whereArgs) ORDER BY $_updateAt DESC");
   }
 
   static String sqlScheduleWithContent() {

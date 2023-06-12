@@ -29,6 +29,7 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
           color: colorPrimary6,
           borderRadius: BorderRadius.all(Radius.circular(5))),
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
         children: [
           Container(
@@ -79,26 +80,37 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
 
 class HomeTimelineWidget extends StatefulWidget {
   HomeState? homeState;
+  VoidCallback? onRefreshList;
+  final RefreshController refreshController;
 
-  HomeTimelineWidget({this.homeState});
+  HomeTimelineWidget(this.refreshController,
+      {this.homeState, this.onRefreshList});
 
   @override
-  State createState() => _HomeTimelineState();
+  State createState() {
+    print("#HomeTimelineWidget# ------ @createState");
+    return _HomeTimelineState();
+  }
 }
 
 class _HomeTimelineState extends State<HomeTimelineWidget> {
   @override
   Widget build(BuildContext context) {
-    RefreshController refreshController =
-        RefreshController(initialRefresh: false);
-    return SmartRefresher(
-      controller: refreshController,
-      enablePullUp: true,
-      header: WaterDropMaterialHeader(
-        backgroundColor: Theme.of(context).primaryColor,
+    return Container(
+      decoration: const BoxDecoration(color: colorPrimary5),
+      child: SmartRefresher(
+        controller: widget.refreshController,
+        enablePullUp: false,
+        enablePullDown: true,
+        header: WaterDropHeader(
+          waterDropColor: colorPrimary1,
+        ),
+        onRefresh: () async {
+          widget.onRefreshList?.call();
+        },
+        child: _buildTimelineContent(),
+        physics: BouncingScrollPhysics(),
       ),
-      child: _buildTimelineContent(),
-      physics: BouncingScrollPhysics(),
     );
   }
 
