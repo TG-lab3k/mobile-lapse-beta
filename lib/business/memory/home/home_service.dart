@@ -9,6 +9,8 @@ class HomeState {
   HomeState({this.memoryContents});
 }
 
+const String _logTag = "#HomeService#";
+
 class HomeService extends Cubit<HomeState> {
   DatabaseRepository _databaseRepository = DatabaseRepository();
 
@@ -17,9 +19,28 @@ class HomeService extends Cubit<HomeState> {
   VoidCallback? listContentCompleted;
 
   void listMemoryContents() async {
-    _databaseRepository.listMemoryContent([1]).then((contentList) {
-      listContentCompleted?.call();
-      emit(HomeState(memoryContents: contentList));
-    });
+    var contentBos = await _databaseRepository.listMemoryContent([1]);
+    if (contentBos.length > 0) {
+      var contentIds =
+          contentBos.map((contentBo) => contentBo.id!).toList(growable: false);
+      var scheduleBos = await _databaseRepository.listSchedule(contentIds);
+      final Map<int, MemoryContentBo> contentBoMap = Map();
+      for (var contentBo in contentBos) {
+        contentBoMap[contentBo.id!] = contentBo;
+      }
+      for (var scheduleBo in scheduleBos) {
+        var contentId = scheduleBo.memoryId;
+        var contentBo = contentBoMap[contentId];
+        if (contentBo != null) {
+          var cntBo = contentBo!;
+          if (cntBo.schedules == null) {
+            cntBo.schedules = [];
+          }
+          cntBo.schedules?.add(scheduleBo);
+        }
+      }
+    }
+    listContentCompleted?.call();
+    emit(HomeState(memoryContents: contentBos));
   }
 }

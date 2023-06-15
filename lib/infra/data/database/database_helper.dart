@@ -29,6 +29,7 @@ const _checkAt = "checkAt";
 const _databaseVersion = 1;
 
 class DatabaseHelper {
+  static final String _logTag = "#DatabaseHelper#";
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static final _databaseName = "lapselocal.sqlite";
 
@@ -193,6 +194,7 @@ class DatabaseHelper {
     var result = await database.rawQuery(sql);
     var rowId = mappingLastRowId(result);
     contentModel.id = rowId;
+    print("$_logTag @createContent contentModel.id: $rowId");
     return contentModel;
   }
 
@@ -242,7 +244,20 @@ class DatabaseHelper {
     var sql = _SQL.sqlMemoryContentSelectList(tenantIds);
     var results = await database.rawQuery(sql, tenantIds);
     var contents = mappingMemoryContent(results);
+
     return contents;
+  }
+
+  Future<List<ScheduleModel>> listSchedules(List<int> memoryIds) async {
+    var database = await getWriteDatabase();
+    var sql = _SQL.sqlScheduleWithContent(memoryIds);
+    print("#DatabaseHelper# @listSchedules $sql");
+    print("#DatabaseHelper# @listSchedules ${memoryIds.toString()}");
+    var results = await database.rawQuery(sql, memoryIds);
+    print("#DatabaseHelper# @listSchedules results: ${results.length}");
+    var schedules = mappingScheduleModel(results);
+    print("#DatabaseHelper# @listSchedules schedules: ${schedules.length}");
+    return schedules;
   }
 
   List<TagModel> mappingTagModel(List<Map> results) {
@@ -281,6 +296,26 @@ class DatabaseHelper {
       ));
     }
     return contents;
+  }
+
+  List<ScheduleModel> mappingScheduleModel(List<Map> results) {
+    List<ScheduleModel> schedules = [];
+    for (Map row in results) {
+      schedules.add(ScheduleModel(
+        id: row[_id],
+        actionAt: row[_actionAt],
+        memoryId: row[_memoryId],
+        status: row[_status],
+        checkAt: row[_checkAt],
+        tenantId: row[_tenantId],
+        serverId: row[_serverId],
+        serverCreateAt: row[_serverCreateAt],
+        serverUpdateAt: row[_serverUpdateAt],
+        createAt: row[_createAt],
+        updateAt: row[_updateAt],
+      ));
+    }
+    return schedules;
   }
 
   int mappingLastRowId(List<Map> results) {
@@ -337,7 +372,14 @@ class _SQL {
         where: "$_tenantId in($whereArgs) ORDER BY $_updateAt DESC");
   }
 
-  static String sqlScheduleWithContent() {
+  static String sqlScheduleWithContent(List<int> memoryIds) {
+    var builder = StringBuffer();
+    memoryIds.forEach((tag) {
+      builder.write("?,");
+    });
+
+    var length = builder.length;
+    var parameters = builder.toString().substring(0, length - 1);
     return _buildSelectSql(
         ScheduleModel.tableName,
         [
@@ -345,6 +387,7 @@ class _SQL {
           _actionAt,
           _memoryId,
           _status,
+          _checkAt,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -352,7 +395,7 @@ class _SQL {
           _createAt,
           _updateAt
         ],
-        where: "$_memoryId = ?");
+        where: " $_memoryId in ($parameters)");
   }
 
   static String _buildSelectSql(String tableName, List<String> columns,

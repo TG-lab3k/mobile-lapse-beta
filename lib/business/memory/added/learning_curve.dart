@@ -1,6 +1,5 @@
 class LearningCurve {
   static final List<Duration> factors = [
-    Duration(minutes: 20),
     Duration(hours: 1),
     Duration(hours: 8),
     Duration(days: 1),

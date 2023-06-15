@@ -1,6 +1,7 @@
 //
 
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tag.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
 import 'package:lapse/infra/data/database/database_helper.dart';
@@ -91,5 +92,28 @@ class DatabaseRepository {
     }
 
     return contentBoList;
+  }
+
+  Future<List<ScheduleBo>> listSchedule(List<int> contentIds) async {
+    List<ScheduleBo> scheduleBoList = [];
+    if (contentIds.length > 0) {
+      final DatabaseHelper databaseHelper = DatabaseHelper();
+      var scheduleModelList = await databaseHelper.listSchedules(contentIds);
+      for (var scheduleModel in scheduleModelList) {
+        scheduleBoList.add(ScheduleBo(
+            actionAt: scheduleModel.actionAt,
+            memoryId: scheduleModel.memoryId,
+            status: scheduleModel.status,
+            checkAt: scheduleModel.checkAt,
+            tenantId: scheduleModel.tenantId,
+            id: scheduleModel.id,
+            serverId: scheduleModel.serverId,
+            serverCreateAt: scheduleModel.serverCreateAt,
+            serverUpdateAt: scheduleModel.serverUpdateAt,
+            createAt: scheduleModel.createAt,
+            updateAt: scheduleModel.updateAt));
+      }
+    }
+    return scheduleBoList;
   }
 }

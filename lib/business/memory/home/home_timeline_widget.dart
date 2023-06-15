@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lapse/business/memory/home/home_service.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 const double heightItem = 15;
+
+const _TAG = "HomeTimelineItemWidget";
 
 class HomeTimelineItemWidget extends StatefulWidget {
   MemoryContentBo memoryContentBo;
@@ -29,52 +32,108 @@ class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
           color: colorPrimary6,
           borderRadius: BorderRadius.all(Radius.circular(5))),
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       child: Column(
         children: [
           Container(
             alignment: Alignment.centerLeft,
-            child: Text(title),
+            child: Text(title,
+                maxLines: 1,
+                style: TextStyle(fontSize: 14, color: colorPrimary8)),
           ),
-          Container(alignment: Alignment.centerLeft, child: Text(content)),
-          Stack(
+          Container(
+              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                content,
+                maxLines: 1,
+                style: TextStyle(fontSize: 12, color: colorPrimary8),
+              )),
+          ProgressWidget(widget.memoryContentBo.schedules),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgressWidget extends StatefulWidget {
+  List<ScheduleBo>? scheduleBoList;
+
+  ProgressWidget(this.scheduleBoList);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ProgressState();
+  }
+}
+
+class _ProgressState extends State<ProgressWidget> {
+  @override
+  Widget build(BuildContext context) {
+    List<ScheduleBo>? scheduleBoList = widget.scheduleBoList;
+    var size = scheduleBoList?.length;
+    var scheduleCount = size != null ? size : 0;
+    print("#_ProgressState#  @build  scheduleCount:$scheduleCount");
+    if (scheduleCount == 0) {
+      return Container(
+        height: heightItem,
+        alignment: Alignment.center,
+        child: const Divider(height: 2.0, color: colorPrimary5),
+      );
+    } else {
+      var scheduleBos = scheduleBoList!;
+      List<Widget> progressItemList = [];
+      for (var i = 0; i < scheduleBos.length; i++) {
+        progressItemList.add(ProgressItemWidget(scheduleBos[i], i));
+      }
+      var progressWidget = Row(children: progressItemList);
+      return Container(
+          margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Stack(
             children: [
               Container(
                 height: heightItem,
                 alignment: Alignment.center,
                 child: const Divider(height: 2.0, color: colorPrimary5),
               ),
-              Row(children: [
-                Container(
-                    height: heightItem,
-                    width: heightItem,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                        color: colorPrimary1, borderRadius: radius),
-                    child: const Text("1",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ))),
-                Container(
-                    height: heightItem,
-                    width: heightItem,
-                    margin: const EdgeInsets.only(left: 20),
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                        color: colorPrimary3, borderRadius: radius),
-                    child: const Text("2",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                        )))
-              ])
+              progressWidget
             ],
-          )
-        ],
-      ),
-    );
+          ));
+    }
+  }
+}
+
+class ProgressItemWidget extends StatelessWidget {
+  ScheduleBo scheduleBo;
+  int index;
+
+  ProgressItemWidget(this.scheduleBo, this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    const radius = BorderRadius.all(Radius.circular(15.0));
+    var nowAt = DateTime.now().millisecondsSinceEpoch;
+    var checkAt = scheduleBo.checkAt;
+    var actionAt = scheduleBo.actionAt!;
+    var actionColor = colorPrimary2;
+    if (checkAt != null) {
+      actionColor = colorPrimary1;
+    } else if (actionAt <= nowAt) {
+      actionColor = colorPrimary3;
+    }
+    double margeLeft = index * 10;
+    return Container(
+        height: heightItem,
+        width: heightItem,
+        alignment: Alignment.center,
+        margin: EdgeInsets.fromLTRB(margeLeft, 0, 0, 0),
+        decoration: BoxDecoration(color: actionColor, borderRadius: radius),
+        child: Text((index + 1).toString(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.white,
+            )));
   }
 }
 
@@ -116,12 +175,16 @@ class _HomeTimelineState extends State<HomeTimelineWidget> {
 
   Widget _buildTimelineContent() {
     List<MemoryContentBo>? memoryContents = widget.homeState?.memoryContents;
-    var contents = memoryContents != null ? memoryContents : [];
+    List<MemoryContentBo> contents =
+        memoryContents != null ? memoryContents : [];
 
     return ListView.builder(
         itemCount: contents.length,
         itemBuilder: (BuildContext context, int index) {
-          return HomeTimelineItemWidget(contents[index]);
+          var contentBo = contents[index];
+          print(
+              "$_TAG @_buildTimelineContent schedules: ${contentBo.schedules?.length}");
+          return HomeTimelineItemWidget(contentBo);
         });
   }
 }
