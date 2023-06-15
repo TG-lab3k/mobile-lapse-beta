@@ -1,8 +1,14 @@
 {
   "appName": "Lapse",
   "memAddedTitle": "新增",
-  "memAddedTitleHint":"请输入名称",
+  "memAddedTitleHint":"请输入标题",
   "memAddedContentHint":"请输入内容",
   "memAddedSubmit":"添加",
-  "memAddedDateTimeFormat":"yy年-M月-d日 H时:m分"
+  "memAddedDateTimeFormat":"yy年-M月-d日 H时:m分",
+  "memAddedSuccess":"创建成功",
+  "memAddedTipsNoTitle":"请输入标题",
+  "commonUnitMinute":"分钟",
+  "commonUnitHour":"小时",
+  "commonUnitDay":"天",
+  "commonLater":"后"
 }

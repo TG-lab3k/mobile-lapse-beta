@@ -22,7 +22,7 @@ class _SkeletonState extends State<Skeleton> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Center(child: Text(title)),
         elevation: 0,
       ),
       body: widget.body,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lapse/business/memory/added/learning_curve.dart';
+import 'package:lapse/business/memory/common/util/common_formats.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
@@ -50,6 +51,8 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
       locale: _locale!,
       pickerTheme: DateTimePickerTheme(
         showTitle: true,
+        confirmTextStyle: TextStyle(color: colorPrimary8),
+        cancelTextStyle: TextStyle(color: colorPrimary8),
       ),
       pickerMode: DateTimePickerMode.datetime,
       onConfirm: (dateTime, List<int> index) {
@@ -63,6 +66,14 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
   @override
   Widget build(BuildContext context) {
     const radius = BorderRadius.all(Radius.circular(15.0));
+    var localizations = TextI18ns.from(context);
+    double itemHeight = 10 + 10 + 15 + (widget.index * 6);
+    var endAt = widget.selectedAt != null ? widget.selectedAt! : widget.startAt;
+    var remaining =
+        CommonFormats.formatRemainingTime(widget.startAt, endAt, context);
+    if (remaining.isNotEmpty) {
+      remaining += localizations.commonLater;
+    }
     return Container(
         decoration: BoxDecoration(color: colorPrimary6),
         padding: EdgeInsets.fromLTRB(
@@ -75,20 +86,21 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
                 children: [
                   Container(
                       width: 15,
-                      height: 60,
+                      height: itemHeight,
                       alignment: Alignment.center,
                       child: VerticalDivider(color: colorPrimary2, width: 1.0)),
                   Positioned(
-                    bottom: 1,
+                    bottom: 10,
                     child: Container(
                         height: 15,
                         width: 15,
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
-                            color: colorPrimary3, borderRadius: radius),
-                        child: Text("${widget.index + 1}",
+                            color: colorPrimary2, borderRadius: radius),
+                        child: Text((widget.index + 1).toString(),
                             textAlign: TextAlign.center,
                             style: TextStyle(
+                              fontSize: 10,
                               color: Colors.white,
                             ))),
                   ),
@@ -96,33 +108,49 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
               ),
             ),
             Container(
-              //decoration: const BoxDecoration(color: colorPrimary2),
               margin: const EdgeInsets.only(left: 10),
               child: Stack(
                 children: [
                   Container(
-                      height: 60,
+                      height: itemHeight,
                       width: 200,
                       alignment: Alignment.center,
                       child: VerticalDivider(
                           color: Color.fromARGB(0x00, 0x00, 0x00, 0x00))),
                   Positioned(
-                    bottom: 1,
-                    child: Clickable(
-                        host: Container(
+                    bottom: 10,
+                    child: Row(
+                      children: [
+                        Clickable(
+                            host: Container(
+                                height: 15,
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 4),
+                                decoration: const BoxDecoration(
+                                    color: colorPrimary2, borderRadius: radius),
+                                alignment: Alignment.center,
+                                child: Text(_format.format(widget.selectedAt!),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: colorPrimary6,
+                                    ))),
+                            listener: (Widget hostWidget) {
+                              _showDateTimePicker(context);
+                            }),
+                        Container(
                             height: 15,
                             padding: const EdgeInsets.only(left: 4, right: 4),
-                            decoration: const BoxDecoration(
-                                color: colorPrimary3, borderRadius: radius),
+                            margin: const EdgeInsets.only(left: 10),
                             alignment: Alignment.center,
-                            child: Text(_format.format(widget.selectedAt!),
+                            child: Text(remaining,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.white,
-                                ))),
-                        listener: (Widget hostWidget) {
-                          _showDateTimePicker(context);
-                        }),
+                                  fontSize: 10,
+                                  color: colorPrimary2,
+                                )))
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -150,16 +178,33 @@ class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
     widget.timelineMap.clear();
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        var selectedAt = timelines[index];
-        widget.timelineMap[index] = selectedAt;
-        return _AmendTimelineItemWidget(
-          index: index,
-          paddingHorizontal: widget.paddingHorizontal!,
-          startAt: nowAt,
-          selectedAt: selectedAt,
-          timelineMap: widget.timelineMap,
-        );
-      }, childCount: timelines.length),
+        if (index < timelines.length) {
+          var selectedAt = timelines[index];
+          widget.timelineMap[index] = selectedAt;
+          return _AmendTimelineItemWidget(
+            index: index,
+            paddingHorizontal: widget.paddingHorizontal!,
+            startAt: nowAt,
+            selectedAt: selectedAt,
+            timelineMap: widget.timelineMap,
+          );
+        } else {
+          return Container(
+              decoration: BoxDecoration(color: colorPrimary6),
+              padding: EdgeInsets.fromLTRB(
+                  widget.paddingHorizontal!, 0, widget.paddingHorizontal!, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                      width: 15,
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: VerticalDivider(color: colorPrimary2, width: 1.0)),
+                ],
+              ));
+        }
+      }, childCount: timelines.length + 1),
     );
   }
 }

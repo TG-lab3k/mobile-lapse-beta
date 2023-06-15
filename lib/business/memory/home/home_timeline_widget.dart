@@ -21,8 +21,6 @@ class HomeTimelineItemWidget extends StatefulWidget {
 class _HomeTimelineItemState extends State<HomeTimelineItemWidget> {
   @override
   Widget build(BuildContext context) {
-    const radius = BorderRadius.all(Radius.circular(15.0));
-
     var memoryTitle = widget.memoryContentBo.title;
     var title = memoryTitle != null ? memoryTitle! : "";
     var memoryContent = widget.memoryContentBo.content;

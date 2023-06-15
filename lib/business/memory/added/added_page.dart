@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/added/added_service.dart';
 import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
-import 'package:lapse/business/memory/repository/database/database_repository.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
 import 'package:lapse/l10n/localizations.dart';
+import 'package:lapse/widget/clickable.dart';
 import 'package:lapse/widget/skeleton.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lapse/widget/toasts.dart';
@@ -83,6 +83,7 @@ class _AddedPageState extends State<AddedPage> {
                           child: TextField(
                             maxLines: 1,
                             style: textFieldStyle,
+                            cursorColor: colorPrimary8,
                             decoration: buildInputDecoration(
                                 localizations.memAddedTitleHint),
                             keyboardType: TextInputType.text,
@@ -97,6 +98,7 @@ class _AddedPageState extends State<AddedPage> {
                           minLines: 8,
                           maxLines: 8,
                           style: textFieldStyle,
+                          cursorColor: colorPrimary8,
                           controller: _contentEditingController,
                           decoration: buildInputDecoration(
                               localizations.memAddedContentHint),
@@ -104,32 +106,41 @@ class _AddedPageState extends State<AddedPage> {
                       ),
                     ])))));
 
-    var contentWidget = Stack(
-      children: [
-        CustomScrollView(
+    var contentWidget = Container(
+        decoration: const BoxDecoration(color: colorPrimary6),
+        child: CustomScrollView(
           slivers: [
             topWidget,
             AmendTimelineWidget(
               paddingHorizontal: paddingStart * 2,
               timelineMap: _timelineMap,
             ),
+            SliverToBoxAdapter(
+                child: Container(
+              margin: const EdgeInsets.only(
+                  left: 20, right: 20, top: 20, bottom: 30),
+              child: Clickable(
+                listener: (_) => _createMemoryContent(context),
+                host: Container(
+                  margin: const EdgeInsets.only(left: 20, right: 20),
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  decoration: BoxDecoration(
+                      color: colorPrimary1,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  child: Center(
+                      child: Text(
+                    localizations.memAddedSubmit,
+                    style: TextStyle(
+                      color: colorPrimary6,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )),
+                ),
+              ),
+            ))
           ],
-        ),
-        Positioned(
-          bottom: 50,
-          child: Container(
-            child: MaterialButton(
-              onPressed: () {
-                print(
-                    "-----MaterialButton------: ${_titleEditingController.value.text}");
-                _createMemoryContent(context);
-              },
-              child: Text(localizations.memAddedSubmit),
-            ),
-          ),
-        )
-      ],
-    );
+        ));
 
     return contentWidget;
   }
@@ -145,7 +156,11 @@ class _AddedPageState extends State<AddedPage> {
   _createMemoryContent(BuildContext context) async {
     var title = _titleEditingController.value.text;
     var content = _contentEditingController.value.text;
-
+    if (title.isEmpty) {
+      String noTitle = TextI18ns.from(context).memAddedTipsNoTitle;
+      Toasts.toast(noTitle);
+      return;
+    }
     var times = _getDateTimes();
     List<ScheduleBo> schedules = [];
     times.forEach((time) {
@@ -162,7 +177,8 @@ class _AddedPageState extends State<AddedPage> {
 
     String appName = TextI18ns.from(context).appName;
     await _addedService.createMemoryContent(memoryContentBo, appName);
-    Toasts.toast("创建成功");
+    String memAddedSuccess = TextI18ns.from(context).memAddedSuccess;
+    Toasts.toast(memAddedSuccess);
     context.go("/");
   }
 }
