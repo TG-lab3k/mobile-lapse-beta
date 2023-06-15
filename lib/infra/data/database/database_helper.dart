@@ -24,6 +24,7 @@ const _birthday = "birthday";
 const _gender = "gender";
 const _icon = "icon";
 const _lastRowId = "lastrowid";
+const _checkAt = "checkAt";
 
 const _databaseVersion = 1;
 
@@ -114,6 +115,7 @@ class DatabaseHelper {
             $_actionAt INTEGER,
             $_memoryId INTEGER,
             $_status INTEGER,
+            $_checkAt INTEGER,
             $_tenantId INTEGER,
             $_serverId INTEGER,
             $_serverCreateAt INTEGER,

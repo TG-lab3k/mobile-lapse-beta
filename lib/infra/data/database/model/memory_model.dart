@@ -112,6 +112,7 @@ class ScheduleModel extends BaseModel {
   int? actionAt;
   int? memoryId;
   int? status;
+  int? checkAt;
   int? tenantId;
 
   ScheduleModel(
@@ -119,6 +120,7 @@ class ScheduleModel extends BaseModel {
       this.actionAt,
       this.memoryId,
       this.status,
+      this.checkAt,
       this.tenantId,
       int? serverId,
       int? serverCreateAt,

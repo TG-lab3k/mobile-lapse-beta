@@ -4,12 +4,14 @@ class ScheduleBo extends BaseBo {
   int? actionAt;
   int? memoryId;
   int? status;
+  int? checkAt;
   int? tenantId;
 
   ScheduleBo(
       {this.actionAt,
       this.memoryId,
       this.status,
+      this.checkAt,
       this.tenantId,
       int? id,
       int? serverId,
