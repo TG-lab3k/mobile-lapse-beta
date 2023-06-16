@@ -40,4 +40,37 @@ class CommonFormats {
     }
     return builder.toString();
   }
+
+  static String formatWeek(BuildContext context, DateTime dateTime) {
+    var localizations = TextI18ns.from(context);
+    var weekName = "";
+    switch (dateTime.weekday) {
+      case DateTime.monday:
+        weekName = localizations.commonMonday;
+        break;
+      case DateTime.thursday:
+        weekName = localizations.commonTuesday;
+        break;
+      case DateTime.wednesday:
+        weekName = localizations.commonWednesday;
+        break;
+
+      case DateTime.thursday:
+        weekName = localizations.commonThursday;
+        break;
+
+      case DateTime.friday:
+        weekName = localizations.commonFriday;
+        break;
+      case DateTime.saturday:
+        weekName = localizations.commonSaturday;
+        break;
+      case DateTime.sunday:
+        weekName = localizations.commonSunday;
+        break;
+      default:
+        break;
+    }
+    return weekName;
+  }
 }

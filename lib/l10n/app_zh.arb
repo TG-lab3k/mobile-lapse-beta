@@ -10,5 +10,12 @@
   "commonUnitMinute":"分钟",
   "commonUnitHour":"小时",
   "commonUnitDay":"天",
-  "commonLater":"后"
+  "commonLater":"后",
+  "commonMonday":"星期一",
+  "commonTuesday":"星期二",
+  "commonWednesday":"星期三",
+  "commonThursday":"星期四",
+  "commonFriday":"星期五",
+  "commonSaturday":"星期六",
+  "commonSunday":"星期日"
 }

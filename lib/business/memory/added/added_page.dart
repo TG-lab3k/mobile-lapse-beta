@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/added/added_service.dart';
 import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
+import 'package:lapse/business/memory/added/learning_curve.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
@@ -30,7 +31,7 @@ class _AddedPageState extends State<AddedPage> {
   final TextEditingController _contentEditingController =
       TextEditingController();
 
-  final Map<int, DateTime> _timelineMap = {};
+  List<DateTime> _timelineList = [];
   final AddedService _addedService = AddedService();
 
   @override
@@ -59,7 +60,6 @@ class _AddedPageState extends State<AddedPage> {
   Widget buildPage(BuildContext context) {
     final AppLocalizations localizations = TextI18ns.from(context);
     const radius = Radius.circular(8.0);
-
     const textFieldStyle = TextStyle(fontSize: 16, color: colorPrimary7);
     var topWidget = SliverToBoxAdapter(
         child: Container(
@@ -113,7 +113,7 @@ class _AddedPageState extends State<AddedPage> {
             topWidget,
             AmendTimelineWidget(
               paddingHorizontal: paddingStart * 2,
-              timelineMap: _timelineMap,
+              timelineList: _timelineList,
             ),
             SliverToBoxAdapter(
                 child: Container(
@@ -147,7 +147,7 @@ class _AddedPageState extends State<AddedPage> {
 
   List<DateTime> _getDateTimes() {
     List<DateTime> dateTimes = [];
-    _timelineMap.values.forEach((selectedAt) {
+    _timelineList.forEach((selectedAt) {
       dateTimes.add(selectedAt);
     });
     return dateTimes;

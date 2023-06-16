@@ -9,19 +9,27 @@ import 'package:lapse/widget/clickable.dart';
 
 final DateFormat _format = DateFormat('yyyy-MM-dd HH:mm');
 
+class _ActionTime {
+  DateTime actionTime;
+  int index;
+
+  _ActionTime(this.actionTime, this.index);
+}
+
 class _AmendTimelineItemWidget extends StatefulWidget {
   _AmendTimelineItemWidget(
-      {required this.index,
-      required this.paddingHorizontal,
+      {required this.selectedIndex,
+      required this.timelineList,
       required this.startAt,
-      required this.selectedAt,
-      required this.timelineMap});
+      required this.paddingHorizontal,
+      required this.onActionTimeChanged});
 
-  final int index;
+  final int selectedIndex;
   final double paddingHorizontal;
   final DateTime startAt;
-  DateTime? selectedAt;
-  final Map<int, DateTime> timelineMap;
+  DateTime? _selectedAt;
+  final List<DateTime> timelineList;
+  final ValueChanged<_ActionTime> onActionTimeChanged;
 
   @override
   State createState() {
@@ -29,8 +37,11 @@ class _AmendTimelineItemWidget extends StatefulWidget {
   }
 
   void _updateSelectedAt(DateTime newSelectedAt) {
-    this.selectedAt = newSelectedAt;
-    this.timelineMap[index] = newSelectedAt;
+    this._selectedAt = newSelectedAt;
+    this.timelineList[selectedIndex] = newSelectedAt;
+    if (selectedIndex == 0) {
+      onActionTimeChanged(_ActionTime(newSelectedAt, selectedIndex));
+    }
   }
 }
 
@@ -46,7 +57,7 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
     DatePicker.showDatePicker(
       context,
       minDateTime: widget.startAt,
-      initialDateTime: widget.selectedAt,
+      initialDateTime: widget._selectedAt!,
       dateFormat: _dateTimePickerFormat,
       locale: _locale!,
       pickerTheme: DateTimePickerTheme(
@@ -65,14 +76,20 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
 
   @override
   Widget build(BuildContext context) {
+    widget._selectedAt = widget.timelineList[widget.selectedIndex];
     const radius = BorderRadius.all(Radius.circular(15.0));
     var localizations = TextI18ns.from(context);
-    double itemHeight = 10 + 10 + 15 + (widget.index * 6);
-    var endAt = widget.selectedAt != null ? widget.selectedAt! : widget.startAt;
+    double itemHeight = 10 + 10 + 15 + (widget.selectedIndex * 6);
+    var endAt =
+        widget._selectedAt != null ? widget._selectedAt! : widget.startAt;
     var remaining =
         CommonFormats.formatRemainingTime(widget.startAt, endAt, context);
     if (remaining.isNotEmpty) {
-      remaining += localizations.commonLater;
+      var week = CommonFormats.formatWeek(context, endAt);
+      if (week.length > 0) {
+        week += "  ";
+      }
+      remaining = week + remaining + localizations.commonLater;
     }
     return Container(
         decoration: BoxDecoration(color: colorPrimary6),
@@ -97,7 +114,7 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
                             color: colorPrimary2, borderRadius: radius),
-                        child: Text((widget.index + 1).toString(),
+                        child: Text((widget.selectedIndex + 1).toString(),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 10,
@@ -113,10 +130,9 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
                 children: [
                   Container(
                       height: itemHeight,
-                      width: 200,
+                      width: 300,
                       alignment: Alignment.center,
-                      child: VerticalDivider(
-                          color: Color.fromARGB(0x00, 0x00, 0x00, 0x00))),
+                      child: VerticalDivider(color: Colors.transparent)),
                   Positioned(
                     bottom: 10,
                     child: Row(
@@ -129,7 +145,7 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
                                 decoration: const BoxDecoration(
                                     color: colorPrimary2, borderRadius: radius),
                                 alignment: Alignment.center,
-                                child: Text(_format.format(widget.selectedAt!),
+                                child: Text(_format.format(widget._selectedAt!),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 10,
@@ -161,32 +177,61 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
 }
 
 class AmendTimelineWidget extends StatefulWidget {
-  AmendTimelineWidget({this.paddingHorizontal, required this.timelineMap});
+  AmendTimelineWidget({this.paddingHorizontal, required this.timelineList});
 
   double? paddingHorizontal = 10;
-  final Map<int, DateTime> timelineMap;
+  List<DateTime> timelineList = [];
 
   @override
   State<AmendTimelineWidget> createState() => _AmendTimelineWidgetState();
 }
 
 class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
+  late DateTime _startAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAt = DateTime.now();
+    var timelineList = LearningCurve.memoryCurve(_startAt);
+    widget.timelineList.clear();
+    timelineList.forEach((time) {
+      widget.timelineList.add(time);
+    });
+  }
+
+  void changeActionTime(_ActionTime _actionTime) async {
+    DateTime changedTime = _actionTime.actionTime;
+    int changedIndex = _actionTime.index;
+    var influencedList =
+        LearningCurve.memoryCurveNext(changedTime, changedIndex);
+    var timelineList = widget.timelineList;
+    var originCount = timelineList.length;
+    var influencedCount = influencedList.length;
+    var nextIndex = changedIndex + 1;
+    for (int i = 0; i < influencedCount; i++) {
+      var originIndex = i + nextIndex;
+      if (originIndex < originCount) {
+        timelineList[originIndex] = influencedList[i];
+      }
+    }
+    setState(() {
+      this._startAt = DateTime.now();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    var nowAt = DateTime.now();
-    var timelines = LearningCurve.memoryCurve(nowAt);
-    widget.timelineMap.clear();
+    var timelineLength = widget.timelineList.length;
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        if (index < timelines.length) {
-          var selectedAt = timelines[index];
-          widget.timelineMap[index] = selectedAt;
+        if (index < timelineLength) {
           return _AmendTimelineItemWidget(
-            index: index,
+            selectedIndex: index,
+            timelineList: widget.timelineList,
+            startAt: _startAt,
             paddingHorizontal: widget.paddingHorizontal!,
-            startAt: nowAt,
-            selectedAt: selectedAt,
-            timelineMap: widget.timelineMap,
+            onActionTimeChanged: changeActionTime,
           );
         } else {
           return Container(
@@ -204,7 +249,7 @@ class _AmendTimelineWidgetState extends State<AmendTimelineWidget> {
                 ],
               ));
         }
-      }, childCount: timelines.length + 1),
+      }, childCount: timelineLength + 1),
     );
   }
 }
