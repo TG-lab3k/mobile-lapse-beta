@@ -5,8 +5,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Color
+import android.net.Uri
 import android.provider.CalendarContract
-import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -149,12 +149,11 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         event.put(CalendarContract.Events.CUSTOM_APP_URI, CALENDAR_APP_URI)
         event.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
         event.put(CalendarContract.Events.EVENT_END_TIMEZONE, TimeZone.getDefault().id)
-        var eventUri = cxt.contentResolver.insert(CalendarContract.Events.CONTENT_URI, event)
+        val eventSyncUri = asSyncAdapter(CalendarContract.Events.CONTENT_URI)
+        var eventUri = cxt.contentResolver.insert(eventSyncUri, event)
         var eventId = eventUri?.let {
             ContentUris.parseId(eventUri)
         }
-
-        Log.d(TAG, "#insertCalendarEvent# eventId: $eventId")
 
         //提醒事件
         var alertUri = eventId?.let {
@@ -163,8 +162,22 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
 
             var remindMinutes = aheadInMinutes ?: 0
             values.put(CalendarContract.Reminders.MINUTES, remindMinutes)
-            values.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_DEFAULT)
-            cxt.contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, values)
+            values.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT)
+            val remindersSyncUri = asSyncAdapter(CalendarContract.Reminders.CONTENT_URI)
+            cxt.contentResolver.insert(remindersSyncUri, values)
+
+            //alarm
+            if ("Xiaomi" == android.os.Build.MANUFACTURER) {
+                println("$TAG @insertCalendarEvent _________ MANUFACTURER:Xiaomi, title: $title")
+                val alarmValues = ContentValues()
+                alarmValues.put(CalendarContract.ExtendedProperties.EVENT_ID, eventId)
+                alarmValues.put(CalendarContract.ExtendedProperties.NAME, "need_alarm")
+                alarmValues.put(CalendarContract.ExtendedProperties.VALUE, true)
+                val extPropSyncUri = asSyncAdapter(CalendarContract.ExtendedProperties.CONTENT_URI)
+                cxt.contentResolver.insert(
+                    extPropSyncUri, alarmValues
+                )
+            }
         }
         return alertUri != null
     }
@@ -238,6 +251,13 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             ).build()
         val result = context.contentResolver.insert(calendarUri, value)
         return if (result == null) -1 else ContentUris.parseId(result)
+    }
+
+    fun asSyncAdapter(uri: Uri): Uri {
+        return uri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+            .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, CALENDAR_ACCOUNT_NAME)
+            .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CALENDAR_ACCOUNT_TYPE)
+            .build()
     }
 
 }
