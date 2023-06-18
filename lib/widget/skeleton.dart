@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lapse/theme/colors.dart';
 
 class Skeleton extends StatefulWidget {
-  const Skeleton({super.key, this.title, this.body});
+  const Skeleton({super.key, this.title, this.body, this.actions});
 
   final String? title;
   final Widget? body;
+  final List<Widget>? actions;
 
   @override
   State<StatefulWidget> createState() {
@@ -24,6 +25,7 @@ class _SkeletonState extends State<Skeleton> {
       appBar: AppBar(
         title: Center(child: Text(title)),
         elevation: 0,
+        actions: widget.actions,
       ),
       body: widget.body,
     );

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:lapse/business/memory/added/learning_curve.dart';
 import 'package:lapse/business/memory/common/util/common_formats.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
-
-final DateFormat _format = DateFormat('yyyy-MM-dd HH:mm');
 
 class _ActionTime {
   DateTime actionTime;
@@ -145,7 +142,7 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
                                 decoration: const BoxDecoration(
                                     color: colorPrimary2, borderRadius: radius),
                                 alignment: Alignment.center,
-                                child: Text(_format.format(widget._selectedAt!),
+                                child: Text(CommonFormats.dHHmmFormat.format(widget._selectedAt!),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 10,

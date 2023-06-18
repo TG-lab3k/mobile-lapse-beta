@@ -29,5 +29,7 @@ class ScheduleBo extends BaseBo {
 }
 
 enum ScheduleStatus {
-  idle;
+  idle,
+  done,
+  overdue;
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/home/home_service.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/theme/colors.dart';
+import 'package:lapse/widget/clickable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 const double heightItem = 15;
@@ -165,24 +167,29 @@ class _HomeTimelineState extends State<HomeTimelineWidget> {
         onRefresh: () async {
           widget.onRefreshList?.call();
         },
-        child: _buildTimelineContent(),
+        child: _buildTimelineContent(context),
         physics: BouncingScrollPhysics(),
       ),
     );
   }
 
-  Widget _buildTimelineContent() {
+  Widget _buildTimelineContent(BuildContext context) {
     List<MemoryContentBo>? memoryContents = widget.homeState?.memoryContents;
     List<MemoryContentBo> contents =
         memoryContents != null ? memoryContents : [];
 
     return ListView.builder(
         itemCount: contents.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (BuildContext itemContext, int index) {
           var contentBo = contents[index];
           print(
               "$_TAG @_buildTimelineContent schedules: ${contentBo.schedules?.length}");
-          return HomeTimelineItemWidget(contentBo);
+          return Clickable(
+            host: HomeTimelineItemWidget(contentBo),
+            listener: (_) {
+              context.go("/lapse/memory/detail/${contentBo.id}");
+            },
+          );
         });
   }
 }

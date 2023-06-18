@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lapse/business/memory/added/added_page.dart';
+import 'package:lapse/business/memory/detail/detail_page.dart';
 import 'package:lapse/business/memory/home/home_page.dart';
 import 'package:lapse/theme/themes.dart';
 import 'package:lapse/widget/toasts.dart';
@@ -21,6 +22,13 @@ final GoRouter _router = GoRouter(
           path: 'lapse/memory/added',
           builder: (BuildContext context, GoRouterState state) =>
               const AddedPage(),
+        ),
+        GoRoute(
+          path: 'lapse/memory/detail/:contentId',
+          builder: (BuildContext context, GoRouterState state) {
+            var contentId = state.pathParameters["contentId"];
+            return DetailPage(contentId);
+          },
         ),
       ],
     ),

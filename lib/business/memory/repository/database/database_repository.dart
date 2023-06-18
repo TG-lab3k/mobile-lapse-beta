@@ -68,12 +68,32 @@ class DatabaseRepository {
     return memoryContentBo;
   }
 
+  Future<MemoryContentBo> getMemoryContent(int contentId) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    var contentModel = await databaseHelper.getMemoryContent(contentId);
+    var contentBoList = _transformMemoryContent([contentModel]);
+    if (contentBoList.length == 0) {
+      return MemoryContentBo();
+    } else {
+      return contentBoList[0];
+    }
+  }
+
   Future<List<MemoryContentBo>> listMemoryContent(List<int> tenantIds) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<MemoryContentModel> contentModelList =
         await databaseHelper.listMemoryContent(tenantIds);
     var contentBoList = _transformMemoryContent(contentModelList);
     return contentBoList;
+  }
+
+  Future<ScheduleBo> updateScheduleStatus(ScheduleBo scheduleBo) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    var updateScheduleModel = await databaseHelper.updateScheduleStatus(
+        ScheduleModel(id: scheduleBo.id, status: scheduleBo.status));
+    scheduleBo.checkAt = updateScheduleModel.checkAt;
+    scheduleBo.updateAt = updateScheduleModel.updateAt;
+    return scheduleBo;
   }
 
   List<MemoryContentBo> _transformMemoryContent(
@@ -115,5 +135,10 @@ class DatabaseRepository {
       }
     }
     return scheduleBoList;
+  }
+
+  Future<void> deleteContent(int contentId) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    databaseHelper.deleteMemoryContent(contentId);
   }
 }

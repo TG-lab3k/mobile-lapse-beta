@@ -49,7 +49,7 @@ class DatabaseHelper {
         version: _databaseVersion, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
-  Future<Database> getWriteDatabase() async {
+  Future<Database> _getWriteDatabase() async {
     if (_database == null) {
       await initialize();
     }
@@ -152,7 +152,7 @@ class DatabaseHelper {
   }
 
   Future<List<TagModel>> createTags(List<TagModel> tags) async {
-    Database database = await getWriteDatabase();
+    Database database = await _getWriteDatabase();
     await database.transaction((txn) async {
       var sql = _SQL.sqlTagInsert();
       var nowAt = DateTime.now().millisecondsSinceEpoch;
@@ -178,7 +178,7 @@ class DatabaseHelper {
 
   Future<MemoryContentModel> createContent(
       MemoryContentModel contentModel) async {
-    Database database = await getWriteDatabase();
+    Database database = await _getWriteDatabase();
     await database.transaction((txn) async {
       var sql = _SQL.sqlMemoryContentInsert();
       var nowAt = DateTime.now().millisecondsSinceEpoch;
@@ -199,7 +199,7 @@ class DatabaseHelper {
   }
 
   createTagMapping(int contentId, List<int> tagIds, int tenantId) async {
-    Database database = await getWriteDatabase();
+    Database database = await _getWriteDatabase();
     await database.transaction((txn) async {
       var batch = txn.batch();
       try {
@@ -216,7 +216,7 @@ class DatabaseHelper {
 
   createSchedules(
       int contentId, List<ScheduleModel> schedules, int tenantId) async {
-    Database database = await getWriteDatabase();
+    Database database = await _getWriteDatabase();
     await database.transaction((txn) async {
       var batch = txn.batch();
       try {
@@ -240,7 +240,7 @@ class DatabaseHelper {
 
   Future<List<MemoryContentModel>> listMemoryContent(
       List<int> tenantIds) async {
-    var database = await getWriteDatabase();
+    var database = await _getWriteDatabase();
     var sql = _SQL.sqlMemoryContentSelectList(tenantIds);
     var results = await database.rawQuery(sql, tenantIds);
     var contents = mappingMemoryContent(results);
@@ -248,16 +248,36 @@ class DatabaseHelper {
     return contents;
   }
 
+  Future<MemoryContentModel> getMemoryContent(int memoryId) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlMemoryContentSelectOne();
+    var results = await database.rawQuery(sql, [memoryId]);
+    var contents = mappingMemoryContent(results);
+    if (contents.length == 0) {
+      return MemoryContentModel();
+    } else {
+      return contents[0];
+    }
+  }
+
   Future<List<ScheduleModel>> listSchedules(List<int> memoryIds) async {
-    var database = await getWriteDatabase();
+    var database = await _getWriteDatabase();
     var sql = _SQL.sqlScheduleWithContent(memoryIds);
-    print("#DatabaseHelper# @listSchedules $sql");
-    print("#DatabaseHelper# @listSchedules ${memoryIds.toString()}");
     var results = await database.rawQuery(sql, memoryIds);
-    print("#DatabaseHelper# @listSchedules results: ${results.length}");
     var schedules = mappingScheduleModel(results);
-    print("#DatabaseHelper# @listSchedules schedules: ${schedules.length}");
     return schedules;
+  }
+
+  Future<ScheduleModel> updateScheduleStatus(
+      ScheduleModel scheduleModel) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlScheduleUpdateStatus();
+    var nowAtInMills = DateTime.now().millisecondsSinceEpoch;
+    await database.execute(sql,
+        [scheduleModel.status, nowAtInMills, nowAtInMills, scheduleModel.id]);
+    scheduleModel.checkAt = nowAtInMills;
+    scheduleModel.updateAt = nowAtInMills;
+    return scheduleModel;
   }
 
   List<TagModel> mappingTagModel(List<Map> results) {
@@ -321,6 +341,29 @@ class DatabaseHelper {
   int mappingLastRowId(List<Map> results) {
     return results.first[_lastRowId];
   }
+
+  Future<int> deleteMemoryContent(int contentId) async {
+    var database = await _getWriteDatabase();
+    var contentSql = "DELETE FROM ${MemoryContentModel.tableName} WHERE $_id=?";
+    var scheduleSql =
+        "DELETE FROM ${ScheduleModel.tableName} WHERE $_memoryId=?";
+    var tagMappingSql =
+        "DELETE FROM ${TagMappingModel.tableName} WHERE $_memoryId=?";
+    await database.transaction((txn) async {
+      var args = [contentId];
+      await txn.rawDelete(contentSql, args);
+      await txn.rawDelete(scheduleSql, args);
+      await txn.rawDelete(tagMappingSql, args);
+    });
+    return contentId;
+  }
+
+  Future<int> deleteSchedules(int contentId) async {
+    var database = await _getWriteDatabase();
+    var sql = "DELETE FROM ${ScheduleModel.tableName} WHERE $_memoryId=?";
+    var count = await database.rawDelete(sql, [contentId]);
+    return count;
+  }
 }
 
 class _SQL {
@@ -348,6 +391,23 @@ class _SQL {
       _createAt,
       _updateAt
     ]);
+  }
+
+  static String sqlMemoryContentSelectOne() {
+    return _buildSelectSql(
+        MemoryContentModel.tableName,
+        [
+          _id,
+          _title,
+          _content,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt
+        ],
+        where: "$_id=?");
   }
 
   static String sqlMemoryContentSelectList(List<int> tenantIds) {
@@ -396,6 +456,31 @@ class _SQL {
           _updateAt
         ],
         where: " $_memoryId in ($parameters)");
+  }
+
+  static String sqlScheduleUpdateStatus() {
+    return _buildUpdateSql(
+        ScheduleModel.tableName, [_status, _checkAt, _updateAt],
+        where: "$_id=?");
+  }
+
+  static String _buildUpdateSql(String tableName, List<String> columns,
+      {String? where}) {
+    var columnsBuilder = StringBuffer();
+    columns.forEach((column) {
+      columnsBuilder.write(",");
+      columnsBuilder.write(column);
+      columnsBuilder.write("=?");
+    });
+
+    String columnString = columnsBuilder.toString().substring(1);
+
+    var sqlBuilder = StringBuffer("UPDATE $tableName SET $columnString");
+    var length = where?.length;
+    if (length != null && length > 0) {
+      sqlBuilder.write(" WHERE $where");
+    }
+    return sqlBuilder.toString();
   }
 
   static String _buildSelectSql(String tableName, List<String> columns,

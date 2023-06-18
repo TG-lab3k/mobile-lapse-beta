@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lapse/l10n/localizations.dart';
 
+const String _logTag = "#CommonFormats#";
+const TIME_FORMAT_ZERO = "0";
+
 class CommonFormats {
+  static final DateFormat dHHmmFormat = DateFormat('yyyy-MM-dd HH:mm');
+
   static String formatRemainingTime(
       DateTime startAt, DateTime endAt, BuildContext context) {
-    var durationInMills =
-        endAt.millisecondsSinceEpoch - startAt.millisecondsSinceEpoch;
+    var startAtInMills = startAt.millisecondsSinceEpoch;
+    var endAtInMills = endAt.millisecondsSinceEpoch;
+    var durationInMills = endAtInMills - startAtInMills;
+    print(
+        "$_logTag @formatRemainingTime durationInMills:$durationInMills, startAtInMills: $startAtInMills, endAtInMills: $endAtInMills");
     if (durationInMills <= 0) {
       return "";
     }
@@ -38,7 +47,12 @@ class CommonFormats {
     } else if (days == 0) {
       builder.write(minuteString);
     }
-    return builder.toString();
+
+    var timeFormat = builder.toString();
+    if (timeFormat == minuteString && minutes == 0) {
+      timeFormat = TIME_FORMAT_ZERO;
+    }
+    return timeFormat;
   }
 
   static String formatWeek(BuildContext context, DateTime dateTime) {

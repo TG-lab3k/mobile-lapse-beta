@@ -1,0 +1,37 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lapse/business/memory/repository/database/database_repository.dart';
+import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/memory/repository/database/schedule.dart';
+
+const String _logTag = "#DetailService#";
+
+class DetailService extends Cubit<MemoryContentBo> {
+  DetailService() : super(MemoryContentBo());
+
+  DatabaseRepository _databaseRepository = DatabaseRepository();
+
+  Future<void> acquireMemoryContent(int contentId) async {
+    var contentBo = await _databaseRepository.getMemoryContent(contentId);
+    if (contentBo.id == contentId) {
+      var scheduleBoList = await _databaseRepository.listSchedule([contentId]);
+      List<ScheduleBo> scheduleList = [];
+      contentBo.schedules = scheduleList;
+      for (var scheduleBo in scheduleBoList) {
+        scheduleList.add(scheduleBo);
+      }
+    }
+
+    print("$_logTag @acquireMemoryContent contentBo: ${contentBo.id}");
+    emit(contentBo);
+  }
+
+  Future<ScheduleBo> updateScheduleStatus(ScheduleBo scheduleBo) async {
+    var updateScheduleBo =
+        await _databaseRepository.updateScheduleStatus(scheduleBo);
+    return updateScheduleBo;
+  }
+
+  Future<void> deleteContent(int contentId) async {
+    await _databaseRepository.deleteContent(contentId);
+  }
+}
