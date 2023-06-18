@@ -3,28 +3,28 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 const _id = "id";
-const _serverId = "serverId";
-const _serverCreateAt = "serverCreateAt";
-const _serverUpdateAt = "serverUpdateAt";
-const _createAt = "createAt";
-const _updateAt = "updateAt";
+const _serverId = "server_id";
+const _serverCreateAt = "server_create_at";
+const _serverUpdateAt = "server_update_at";
+const _createAt = "create_at";
+const _updateAt = "update_at";
 const _reserve1 = "reserve1";
 const _reserve2 = "reserve2";
 const _tag = "tag";
 const _num = "num";
 const _title = "title";
 const _content = "content";
-const _tagId = "tagId";
-const _memoryId = "memoryId";
-const _actionAt = "actionAt";
+const _tagId = "tag_id";
+const _memoryId = "memory_id";
+const _actionAt = "action_at";
 const _status = "status";
-const _tenantId = "tenantId";
-const _tenantName = "tenantName";
+const _tenantId = "tenant_id";
+const _tenantName = "tenant_name";
 const _birthday = "birthday";
 const _gender = "gender";
 const _icon = "icon";
+const _doneAt = "done_at";
 const _lastRowId = "lastrowid";
-const _checkAt = "checkAt";
 
 const _databaseVersion = 1;
 
@@ -116,7 +116,7 @@ class DatabaseHelper {
             $_actionAt INTEGER,
             $_memoryId INTEGER,
             $_status INTEGER,
-            $_checkAt INTEGER,
+            $_doneAt INTEGER,
             $_tenantId INTEGER,
             $_serverId INTEGER,
             $_serverCreateAt INTEGER,
@@ -275,7 +275,7 @@ class DatabaseHelper {
     var nowAtInMills = DateTime.now().millisecondsSinceEpoch;
     await database.execute(sql,
         [scheduleModel.status, nowAtInMills, nowAtInMills, scheduleModel.id]);
-    scheduleModel.checkAt = nowAtInMills;
+    scheduleModel.doneAt = nowAtInMills;
     scheduleModel.updateAt = nowAtInMills;
     return scheduleModel;
   }
@@ -326,7 +326,7 @@ class DatabaseHelper {
         actionAt: row[_actionAt],
         memoryId: row[_memoryId],
         status: row[_status],
-        checkAt: row[_checkAt],
+        doneAt: row[_doneAt],
         tenantId: row[_tenantId],
         serverId: row[_serverId],
         serverCreateAt: row[_serverCreateAt],
@@ -447,7 +447,7 @@ class _SQL {
           _actionAt,
           _memoryId,
           _status,
-          _checkAt,
+          _doneAt,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -460,7 +460,7 @@ class _SQL {
 
   static String sqlScheduleUpdateStatus() {
     return _buildUpdateSql(
-        ScheduleModel.tableName, [_status, _checkAt, _updateAt],
+        ScheduleModel.tableName, [_status, _doneAt, _updateAt],
         where: "$_id=?");
   }
 

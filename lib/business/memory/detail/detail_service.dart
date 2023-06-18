@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lapse/business/memory/repository/calendar_repository.dart';
 import 'package:lapse/business/memory/repository/database/database_repository.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
@@ -9,6 +10,7 @@ class DetailService extends Cubit<MemoryContentBo> {
   DetailService() : super(MemoryContentBo());
 
   DatabaseRepository _databaseRepository = DatabaseRepository();
+  CalendarRepository _calendarRepository = CalendarRepository();
 
   Future<void> acquireMemoryContent(int contentId) async {
     var contentBo = await _databaseRepository.getMemoryContent(contentId);
@@ -31,7 +33,10 @@ class DetailService extends Cubit<MemoryContentBo> {
     return updateScheduleBo;
   }
 
-  Future<void> deleteContent(int contentId) async {
-    await _databaseRepository.deleteContent(contentId);
+  Future<void> deleteContent(MemoryContentBo memoryContentBo) async {
+    if (memoryContentBo.id != null) {
+      await _databaseRepository.deleteContent(memoryContentBo.id!);
+    }
+    _calendarRepository.deleteSchedules(memoryContentBo);
   }
 }

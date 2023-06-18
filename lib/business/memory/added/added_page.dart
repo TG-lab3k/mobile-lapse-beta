@@ -165,7 +165,7 @@ class _AddedPageState extends State<AddedPage> {
     times.forEach((time) {
       var scheduleBo = ScheduleBo(
           actionAt: time.millisecondsSinceEpoch,
-          status: ScheduleStatus.idle.index);
+          status: ScheduleStatus.todo.index);
       schedules.add(scheduleBo);
     });
 

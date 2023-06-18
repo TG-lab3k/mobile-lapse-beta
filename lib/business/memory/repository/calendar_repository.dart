@@ -26,4 +26,22 @@ class CalendarRepository {
       }
     });
   }
+
+  deleteSchedules(MemoryContentBo memoryContentBo) async {
+    List<ScheduleBo>? schedules = memoryContentBo.schedules;
+    if (schedules == null) {
+      return;
+    }
+
+    schedules?.forEach((schedule) {
+      var actionAtMills = schedule.actionAt;
+      var title = memoryContentBo.title;
+      if (actionAtMills != null && title != null) {
+        CalendarPlugin.deleteEvent(CalendarEvent(
+          title: memoryContentBo.title!,
+          startAt: DateTime.fromMillisecondsSinceEpoch(actionAtMills),
+        ));
+      }
+    });
+  }
 }

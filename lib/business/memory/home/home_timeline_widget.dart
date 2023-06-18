@@ -113,7 +113,7 @@ class ProgressItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const radius = BorderRadius.all(Radius.circular(15.0));
     var nowAt = DateTime.now().millisecondsSinceEpoch;
-    var checkAt = scheduleBo.checkAt;
+    var checkAt = scheduleBo.doneAt;
     var actionAt = scheduleBo.actionAt!;
     var actionColor = colorPrimary2;
     if (checkAt != null) {

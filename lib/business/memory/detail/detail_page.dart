@@ -27,6 +27,7 @@ class _DetailPageState extends State<DetailPage> {
   final DetailService detailService = DetailService();
 
   int contentId = 0;
+  MemoryContentBo? _memoryContentBo;
 
   void _updateScheduleState(BuildContext context, ScheduleBo scheduleBo) async {
     await detailService.updateScheduleStatus(scheduleBo);
@@ -59,9 +60,11 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _deleteContent(BuildContext context) async {
-    await detailService.deleteContent(contentId);
     Navigator.of(context).pop(true);
-    context.go("/");
+    if (_memoryContentBo != null) {
+      await detailService.deleteContent(_memoryContentBo!);
+      context.go("/");
+    }
   }
 
   @override
@@ -80,6 +83,7 @@ class _DetailPageState extends State<DetailPage> {
           create: (_) => detailService..acquireMemoryContent(contentId),
           child: BlocBuilder<DetailService, MemoryContentBo>(
               builder: (blocContext, memoryContentBo) {
+            _memoryContentBo = memoryContentBo;
             return Skeleton(
               title: memoryContentBo.title,
               body: buildPage(blocContext, memoryContentBo),
@@ -227,7 +231,7 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
     if (ScheduleStatus.done.index == status) {
       //done
       return colorPrimary1;
-    } else if (ScheduleStatus.idle.index == status &&
+    } else if (ScheduleStatus.todo.index == status &&
         widget.scheduleBo.actionAt != null) {
       var actionAtInMills = widget.scheduleBo.actionAt!;
       var nowAtInMills = nowAt.millisecondsSinceEpoch;
@@ -244,10 +248,10 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
     var status = widget.scheduleBo.status;
     var localizations = TextI18ns.from(context);
     if (ScheduleStatus.done.index == status) {
-      print("$_logTag @formatTimeHint doneAt: ${widget.scheduleBo.checkAt}");
-      if (widget.scheduleBo.checkAt != null) {
+      print("$_logTag @formatTimeHint doneAt: ${widget.scheduleBo.doneAt}");
+      if (widget.scheduleBo.doneAt != null) {
         var doneAt =
-            DateTime.fromMillisecondsSinceEpoch(widget.scheduleBo.checkAt!);
+            DateTime.fromMillisecondsSinceEpoch(widget.scheduleBo.doneAt!);
         var doneHint =
             CommonFormats.formatRemainingTime(doneAt, nowAt, context);
         print("$_logTag @formatTimeHint doneHint: $doneHint");
@@ -265,7 +269,7 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
           timeHint = week + tail;
         }
       }
-    } else if (ScheduleStatus.idle.index == status) {
+    } else if (ScheduleStatus.todo.index == status) {
       var actionAtInMills = widget.scheduleBo.actionAt;
       if (actionAtInMills != null &&
           nowAt.millisecondsSinceEpoch < actionAtInMills) {
@@ -304,7 +308,7 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
 
   bool _isOverdue() {
     var scheduleBo = widget.scheduleBo;
-    return ScheduleStatus.idle.index == scheduleBo.status &&
+    return ScheduleStatus.todo.index == scheduleBo.status &&
         scheduleBo.actionAt! < nowAt.millisecondsSinceEpoch;
   }
 

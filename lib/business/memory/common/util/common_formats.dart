@@ -62,7 +62,7 @@ class CommonFormats {
       case DateTime.monday:
         weekName = localizations.commonMonday;
         break;
-      case DateTime.thursday:
+      case DateTime.tuesday:
         weekName = localizations.commonTuesday;
         break;
       case DateTime.wednesday:

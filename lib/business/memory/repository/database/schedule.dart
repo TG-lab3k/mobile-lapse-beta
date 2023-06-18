@@ -4,14 +4,14 @@ class ScheduleBo extends BaseBo {
   int? actionAt;
   int? memoryId;
   int? status;
-  int? checkAt;
+  int? doneAt;
   int? tenantId;
 
   ScheduleBo(
       {this.actionAt,
       this.memoryId,
       this.status,
-      this.checkAt,
+      this.doneAt,
       this.tenantId,
       int? id,
       int? serverId,
@@ -29,7 +29,7 @@ class ScheduleBo extends BaseBo {
 }
 
 enum ScheduleStatus {
-  idle,
+  todo,
   done,
   overdue;
 }

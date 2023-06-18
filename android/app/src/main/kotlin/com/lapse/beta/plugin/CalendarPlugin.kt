@@ -14,10 +14,12 @@ import java.util.*
 
 class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private val TAG = "CalendarPlugin";
-    private val CALENDAR_NAME = "Lapse"
-    private val CALENDAR_ACCOUNT_NAME = "lapse.com"
+    private val CALENDAR_NAME = "LapseTodo"
+    private val CALENDAR_ACCOUNT_NAME = "todo@lapse.com"
     private val CALENDAR_ACCOUNT_TYPE = "com.lapse.beta"
-    private val CALENDAR_DISPLAY_NAME = "Lapse"
+    private val CALENDAR_DISPLAY_NAME = "Lapse.Todo"
+    private val CALENDAR_APP_PACKAGE = "com.lapse.beta"
+    private val CALENDAR_APP_URI = "lapse://app.lapse.com"
 
     private var channel: MethodChannel? = null
     private var context: Context? = null
@@ -35,7 +37,8 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        if ("createCalendarEvent" == call.method) {
+        var method = call.method
+        if ("createCalendarEvent" == method) {
             var title = call.argument<String>("title")
             var startAt = call.argument<Long>("startAt")
             var endAt = call.argument<Long>("endAt")
@@ -52,9 +55,63 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             } else {
                 result.success(false)
             }
+        } else if ("deleteCalendarEvent" == method) {
+            var title = call.argument<String>("title")
+            var startAt = call.argument<Long>("startAt")
+            if (title != null && startAt != null) {
+                deleteCalendarEvent(title, startAt)
+            }
         } else {
             result.notImplemented();
         }
+    }
+
+    private fun deleteCalendarEvent(title: String, startAt: Long): Boolean {
+        var cxt = this.context ?: return false
+        val calendarId = checkCalendarAccounts(cxt)
+        if (calendarId == -1) {
+            return false
+        }
+        val projection = arrayOf(
+            CalendarContract.Events._ID,
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.CALENDAR_ID,
+        )
+
+        val selection =
+            "((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.TITLE} = ?) AND (${CalendarContract.Events.DTSTART} = ?))"
+        val selectionArgs = arrayOf(calendarId.toString(), title, startAt.toString())
+        val eventCursor: Cursor = cxt.contentResolver.query(
+            CalendarContract.Events.CONTENT_URI, projection, selection, selectionArgs, null
+        ) ?: return false
+
+        val eventId = eventCursor.use { cursor ->
+            val count: Int = cursor.count
+            if (count > 0) {
+                cursor.moveToNext()
+                var idIndex = cursor.getColumnIndex(CalendarContract.Events._ID)
+                cursor.getInt(idIndex)
+            } else {
+                -1
+            }
+        }
+
+        if (eventId == -1) {
+            return false
+        }
+
+        cxt.contentResolver.delete(
+            CalendarContract.Reminders.CONTENT_URI,
+            "(${CalendarContract.Reminders.EVENT_ID} = ?)",
+            arrayOf(eventId.toString())
+        )
+
+        var eventCount = cxt.contentResolver.delete(
+            CalendarContract.Events.CONTENT_URI,
+            "(${CalendarContract.Events._ID} = ?)",
+            arrayOf(eventId.toString())
+        )
+        return eventCount == 1
     }
 
     private fun insertCalendarEvent(
@@ -88,8 +145,8 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         event.put(CalendarContract.Events.DTSTART, startAt)
         event.put(CalendarContract.Events.DTEND, endAt)
         event.put(CalendarContract.Events.HAS_ALARM, 1)
-        event.put(CalendarContract.Events.CUSTOM_APP_PACKAGE, "com.lapse.beta")
-        event.put(CalendarContract.Events.CUSTOM_APP_URI, "lapse://app.lapse.com/")
+        event.put(CalendarContract.Events.CUSTOM_APP_PACKAGE, CALENDAR_APP_PACKAGE)
+        event.put(CalendarContract.Events.CUSTOM_APP_URI, CALENDAR_APP_URI)
         event.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
         event.put(CalendarContract.Events.EVENT_END_TIMEZONE, TimeZone.getDefault().id)
         var eventUri = cxt.contentResolver.insert(CalendarContract.Events.CONTENT_URI, event)
@@ -128,19 +185,24 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     private fun checkCalendarAccounts(context: Context): Int {
+        val projection = arrayOf(
+            CalendarContract.Calendars._ID,
+            CalendarContract.Calendars.ACCOUNT_NAME,
+            CalendarContract.Calendars.ACCOUNT_TYPE
+        )
+
+        val selection =
+            "((${CalendarContract.Calendars.ACCOUNT_NAME} = ?) AND (" + "${CalendarContract.Calendars.ACCOUNT_TYPE} = ?))"
+        val selectionArgs: Array<String> = arrayOf(CALENDAR_ACCOUNT_NAME, CALENDAR_ACCOUNT_TYPE)
         val userCursor: Cursor = context.contentResolver.query(
-            CalendarContract.Calendars.CONTENT_URI,
-            null,
-            null,
-            null,
-            CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL + " ASC "
+            CalendarContract.Calendars.CONTENT_URI, projection, selection, selectionArgs, null
         ) ?: return -1
 
         return userCursor.use { userCursor ->
             val count: Int = userCursor.count
             if (count > 0) {
                 userCursor.moveToNext()
-                var idIndex = userCursor.getColumnIndex(CalendarContract.Calendars._ID);
+                var idIndex = userCursor.getColumnIndex(CalendarContract.Calendars._ID)
                 userCursor.getInt(idIndex)
             } else {
                 -1
@@ -157,8 +219,7 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         value.put(
             CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, CALENDAR_DISPLAY_NAME
         )
-        value.put(CalendarContract.Calendars.VISIBLE, 1)
-        value.put(CalendarContract.Calendars.CALENDAR_COLOR, Color.BLUE)
+        value.put(CalendarContract.Calendars.CALENDAR_COLOR, Color.RED)
         value.put(
             CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
             CalendarContract.Calendars.CAL_ACCESS_OWNER

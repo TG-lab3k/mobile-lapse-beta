@@ -91,7 +91,7 @@ class DatabaseRepository {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     var updateScheduleModel = await databaseHelper.updateScheduleStatus(
         ScheduleModel(id: scheduleBo.id, status: scheduleBo.status));
-    scheduleBo.checkAt = updateScheduleModel.checkAt;
+    scheduleBo.doneAt = updateScheduleModel.doneAt;
     scheduleBo.updateAt = updateScheduleModel.updateAt;
     return scheduleBo;
   }
@@ -124,7 +124,7 @@ class DatabaseRepository {
             actionAt: scheduleModel.actionAt,
             memoryId: scheduleModel.memoryId,
             status: scheduleModel.status,
-            checkAt: scheduleModel.checkAt,
+            doneAt: scheduleModel.doneAt,
             tenantId: scheduleModel.tenantId,
             id: scheduleModel.id,
             serverId: scheduleModel.serverId,

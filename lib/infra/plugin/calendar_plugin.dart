@@ -4,7 +4,7 @@ class CalendarEvent {
   String title;
   String? description;
   DateTime startAt;
-  DateTime endAt;
+  DateTime? endAt;
   int? aheadInMinutes;
   String? location;
 
@@ -12,7 +12,7 @@ class CalendarEvent {
       {required this.title,
       this.description,
       required this.startAt,
-      required this.endAt,
+      this.endAt,
       this.aheadInMinutes,
       this.location});
 
@@ -22,7 +22,7 @@ class CalendarEvent {
       'description': description,
       'location': location,
       'startAt': startAt.millisecondsSinceEpoch,
-      'endAt': endAt.millisecondsSinceEpoch,
+      'endAt': endAt?.millisecondsSinceEpoch,
       'aheadInMinutes': aheadInMinutes
     };
     return params;
@@ -36,6 +36,12 @@ class CalendarPlugin {
   static Future<bool> addEvent(CalendarEvent event) async {
     return _channel
         .invokeMethod<bool?>('createCalendarEvent', event.toJson())
+        .then((value) => value ?? false);
+  }
+
+  static Future<bool> deleteEvent(CalendarEvent event) async {
+    return _channel
+        .invokeMethod<bool?>('deleteCalendarEvent', event.toJson())
         .then((value) => value ?? false);
   }
 }
