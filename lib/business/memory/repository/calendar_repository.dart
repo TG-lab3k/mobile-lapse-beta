@@ -2,6 +2,7 @@ import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/infra/plugin/calendar_plugin.dart';
 
+const AHEAD_MINUTES = 5;
 class CalendarRepository {
   createSchedules(MemoryContentBo memoryContentBo, String location) async {
     List<ScheduleBo>? schedules = memoryContentBo.schedules;
@@ -21,7 +22,7 @@ class CalendarRepository {
           startAt: DateTime.fromMillisecondsSinceEpoch(actionAtMills),
           endAt: DateTime.fromMillisecondsSinceEpoch(
               actionAtMills + endAtDuration.inMilliseconds),
-          aheadInMinutes: 5,
+          aheadInMinutes: AHEAD_MINUTES,
         ));
       }
     });
@@ -40,6 +41,7 @@ class CalendarRepository {
         CalendarPlugin.deleteEvent(CalendarEvent(
           title: memoryContentBo.title!,
           startAt: DateTime.fromMillisecondsSinceEpoch(actionAtMills),
+          aheadInMinutes: AHEAD_MINUTES,
         ));
       }
     });

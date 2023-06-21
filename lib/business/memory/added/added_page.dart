@@ -5,6 +5,7 @@ import 'package:lapse/business/memory/added/amend_timeline_widget.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
+import 'package:lapse/infra/plugin/calendar_plugin.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/widget/clickable.dart';
 import 'package:lapse/widget/skeleton.dart';
@@ -42,6 +43,10 @@ class _AddedPageState extends State<AddedPage> {
   @override
   Widget build(BuildContext context) {
     String label = TextI18ns.from(context).memAddedTitle;
+    Future.delayed(Duration(milliseconds: 100), () async {
+      var status = await CalendarPlugin.checkAndRequestCalendarPermission();
+      print("@checkAndRequestCalendarPermission status: $status");
+    });
     return Skeleton(title: label, body: buildPage(context));
   }
 

@@ -33,15 +33,18 @@ class CalendarPlugin {
   static const MethodChannel _channel =
       const MethodChannel('plugin.calendarAndAlarm');
 
-  static Future<bool> addEvent(CalendarEvent event) async {
-    return _channel
-        .invokeMethod<bool?>('createCalendarEvent', event.toJson())
-        .then((value) => value ?? false);
+  static Future<int?> addEvent(CalendarEvent event) async {
+    return await _channel
+        .invokeMethod<int?>('createCalendarEvent', event.toJson());
   }
 
-  static Future<bool> deleteEvent(CalendarEvent event) async {
-    return _channel
-        .invokeMethod<bool?>('deleteCalendarEvent', event.toJson())
-        .then((value) => value ?? false);
+  static Future<int?> deleteEvent(CalendarEvent event) async {
+    return await _channel
+        .invokeMethod<int?>('deleteCalendarEvent', event.toJson());
+  }
+
+  static Future<int?> checkAndRequestCalendarPermission() async {
+    return await _channel
+        .invokeMethod<int>('checkAndRequestCalendarPermission');
   }
 }
