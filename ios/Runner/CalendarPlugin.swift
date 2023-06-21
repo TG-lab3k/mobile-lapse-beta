@@ -96,13 +96,22 @@ private class CalendarHelper{
                 return
             }
             
+            let endAtInMills = args?["endAt"] as! Int64?
+            if(endAtInMills == nil){
+                result(0)
+                return
+            }
+            
             let aheadInMinutes = args?["aheadInMinutes"] as! Double?
             if(aheadInMinutes == nil){
                 result(0)
                 return
             }
             
-            var calendarEvent = CalendarEvent(title: title!, startAt: startAtInMills!, aheadInMinutes: aheadInMinutes!)
+            var calendarEvent = CalendarEvent(title: title!,
+                                              startAt: startAtInMills!,
+                                              endAt: endAtInMills,
+                                              aheadInMinutes: aheadInMinutes!)
             checkCalendarEventPermission(){ (eventStatus:PermissionStatus) -> Void in
                 if(PermissionStatus.authorized == eventStatus){
                     self.checkCalendarReminderPermission(){(reminderStatus: PermissionStatus) -> Void in
@@ -229,27 +238,28 @@ private class CalendarHelper{
         event.timeZone = NSTimeZone.system
         event.calendar = self.eventStore.defaultCalendarForNewEvents
         do{
-            try self.eventStore.save(event, span: EKSpan.thisEvent, commit: true)
-            
-            //
-            let reminder:EKReminder = EKReminder(eventStore: eventStore)
-            reminder.title = calendarEvent.title
-            reminder.location = calendarEvent.location
-            reminder.notes = calendarEvent.description
-            
-            let calendar = Calendar.current
-            let aheadInSeconds = calendarEvent.aheadInMinutes * 60
-            let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
-            let reminderEndAt = eventStartAt
-            let startComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderStartAt)
-            let endComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderEndAt)
-            reminder.startDateComponents = startComponents
-            reminder.dueDateComponents = endComponents
-            reminder.priority = 1
-            reminder.alarms = [alarm]
-            reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
-            reminder.timeZone = NSTimeZone.system
-            try self.eventStore.save(reminder, commit: true)
+            let eventAdded:()? = try self.eventStore.save(event, span: EKSpan.thisEvent, commit: true)
+            if(eventAdded == nil){
+                //事件添加失败，则添加提醒
+                let reminder:EKReminder = EKReminder(eventStore: eventStore)
+                reminder.title = calendarEvent.title
+                reminder.location = calendarEvent.location
+                reminder.notes = calendarEvent.description
+                
+                let calendar = Calendar.current
+                let aheadInSeconds = calendarEvent.aheadInMinutes * 60
+                let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
+                let reminderEndAt = eventStartAt
+                let startComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderStartAt)
+                let endComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderEndAt)
+                reminder.startDateComponents = startComponents
+                reminder.dueDateComponents = endComponents
+                reminder.priority = 1
+                reminder.alarms = [alarm]
+                reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
+                reminder.timeZone = NSTimeZone.system
+                try self.eventStore.save(reminder, commit: true)
+            }
             return true
         }catch{
             //ignore
@@ -259,27 +269,40 @@ private class CalendarHelper{
     
     func deleteEvent(calendarEvent : CalendarEvent) -> Bool {
         print("#deleteEvent# \(calendarEvent.title)")
-        let event:EKEvent = EKEvent(eventStore: eventStore)
-        event.title = calendarEvent.title
         let eventStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000))))
-        event.startDate = eventStartAt
-        event.timeZone = NSTimeZone.system
+        let eventEndAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.endAt! / 1000))))
+        
+        let predicate = self.eventStore.predicateForEvents(withStart: eventStartAt, end: eventEndAt,
+                                           calendars: [self.eventStore.defaultCalendarForNewEvents!])
+        let events:Array<EKEvent> = self.eventStore.events(matching: predicate)
         do{
-            let removed:()? = try self.eventStore.remove(event, span: EKSpan.thisEvent, commit: true)
-            if(removed != nil){
-                let reminder:EKReminder = EKReminder(eventStore: eventStore)
-                reminder.title = calendarEvent.title
-                let calendar = Calendar.current
-                let aheadInSeconds = calendarEvent.aheadInMinutes * 60
-                let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
-                let reminderEndAt = eventStartAt
-                let dateComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderStartAt, to: reminderEndAt)
-                reminder.dueDateComponents = dateComponents
-                reminder.timeZone = NSTimeZone.system
-                
-                try self.eventStore.remove(reminder, commit: true)
-                return true
+            try events.forEach { event in
+                if(event.title == calendarEvent.title){
+                    try self.eventStore.remove(event, span: EKSpan.thisEvent, commit: true)
+                }
             }
+            
+            
+            let aheadInSeconds = calendarEvent.aheadInMinutes * 60
+            let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
+            let reminderEndAt = eventStartAt
+            
+            let reminderPredicate = self.eventStore.predicateForIncompleteReminders(
+                withDueDateStarting: reminderStartAt,
+                ending: reminderEndAt,
+                calendars:[self.eventStore.defaultCalendarForNewReminders()!])
+            
+            self.eventStore.predicateForReminders(in: [self.eventStore.defaultCalendarForNewReminders()!])
+            self.eventStore.fetchReminders(matching: reminderPredicate) { (reminders:[EKReminder]?) -> Void in
+                do{
+                    try reminders?.forEach{ reminder in
+                        try self.eventStore.remove(reminder, commit: true);
+                    }
+                }catch{
+                    //ignore
+                }
+            }
+            return true
         }catch{
             //ignore
         }
