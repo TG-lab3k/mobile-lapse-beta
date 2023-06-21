@@ -43,7 +43,7 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             var startAt = call.argument<Long>("startAt")
             var endAt = call.argument<Long>("endAt")
             if (title != null && startAt != null && endAt != null) {
-                val success = insertCalendarEvent(
+                val succeed = insertCalendarEvent(
                     title,
                     call.argument("description"),
                     call.argument("location"),
@@ -51,9 +51,13 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     endAt,
                     call.argument("aheadInMinutes"),
                 )
-                result.success(success)
+                var successValue = 0
+                if (succeed) {
+                    successValue = 1
+                }
+                result.success(successValue)
             } else {
-                result.success(false)
+                result.success(0)
             }
         } else if ("deleteCalendarEvent" == method) {
             var title = call.argument<String>("title")
