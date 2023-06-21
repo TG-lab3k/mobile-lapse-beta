@@ -72,12 +72,8 @@ private class CalendarHelper{
             calendarEvent.location = location
             checkCalendarEventPermission(){ (eventStatus:PermissionStatus) -> Void in
                 if(PermissionStatus.authorized == eventStatus){
-                    self.checkCalendarReminderPermission(){(reminderStatus: PermissionStatus) -> Void in
-                        if(PermissionStatus.authorized == reminderStatus){
-                            let succeed = self.createEvent(calendarEvent:calendarEvent)
-                            result(succeed ? 1 : 0)
-                        }
-                    }
+                    let succeed = self.createEvent(calendarEvent:calendarEvent)
+                    result(succeed ? 1 : 0)
                 }else{
                     result(eventStatus.rawValue)
                 }
@@ -108,31 +104,21 @@ private class CalendarHelper{
                 return
             }
             
-            var calendarEvent = CalendarEvent(title: title!,
+            let calendarEvent = CalendarEvent(title: title!,
                                               startAt: startAtInMills!,
                                               endAt: endAtInMills,
                                               aheadInMinutes: aheadInMinutes!)
             checkCalendarEventPermission(){ (eventStatus:PermissionStatus) -> Void in
                 if(PermissionStatus.authorized == eventStatus){
-                    self.checkCalendarReminderPermission(){(reminderStatus: PermissionStatus) -> Void in
-                        if(PermissionStatus.authorized == reminderStatus){
-                            let succeed = self.deleteEvent(calendarEvent: calendarEvent)
-                            result(succeed ? 1 : 0)
-                        }
-                    }
+                    let succeed = self.deleteEvent(calendarEvent: calendarEvent)
+                    result(succeed ? 1 : 0)
                 }else{
                     result(eventStatus.rawValue)
                 }
             }
         } else if("checkAndRequestCalendarPermission" == methodName){
             checkCalendarEventPermission(){(eventStatus:PermissionStatus) -> Void in
-                self.checkCalendarReminderPermission(){(reminderStatus: PermissionStatus) -> Void in
-                    if(PermissionStatus.authorized == eventStatus && PermissionStatus.authorized == reminderStatus){
-                        result(PermissionStatus.authorized.rawValue)
-                    }else{
-                        result(PermissionStatus.restricted.rawValue)
-                    }
-                }
+                result(eventStatus.rawValue)
             }
         }
     }
@@ -238,28 +224,7 @@ private class CalendarHelper{
         event.timeZone = NSTimeZone.system
         event.calendar = self.eventStore.defaultCalendarForNewEvents
         do{
-            let eventAdded:()? = try self.eventStore.save(event, span: EKSpan.thisEvent, commit: true)
-            if(eventAdded == nil){
-                //事件添加失败，则添加提醒
-                let reminder:EKReminder = EKReminder(eventStore: eventStore)
-                reminder.title = calendarEvent.title
-                reminder.location = calendarEvent.location
-                reminder.notes = calendarEvent.description
-                
-                let calendar = Calendar.current
-                let aheadInSeconds = calendarEvent.aheadInMinutes * 60
-                let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
-                let reminderEndAt = eventStartAt
-                let startComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderStartAt)
-                let endComponents = calendar.dateComponents([.minute, .hour, .day, .month, .year], from: reminderEndAt)
-                reminder.startDateComponents = startComponents
-                reminder.dueDateComponents = endComponents
-                reminder.priority = 1
-                reminder.alarms = [alarm]
-                reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
-                reminder.timeZone = NSTimeZone.system
-                try self.eventStore.save(reminder, commit: true)
-            }
+            try self.eventStore.save(event, span: EKSpan.thisEvent, commit: true)
             return true
         }catch{
             //ignore
@@ -279,27 +244,6 @@ private class CalendarHelper{
             try events.forEach { event in
                 if(event.title == calendarEvent.title){
                     try self.eventStore.remove(event, span: EKSpan.thisEvent, commit: true)
-                }
-            }
-            
-            
-            let aheadInSeconds = calendarEvent.aheadInMinutes * 60
-            let reminderStartAt = Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(integerLiteral: (calendarEvent.startAt / 1000) - Int64(aheadInSeconds))))
-            let reminderEndAt = eventStartAt
-            
-            let reminderPredicate = self.eventStore.predicateForIncompleteReminders(
-                withDueDateStarting: reminderStartAt,
-                ending: reminderEndAt,
-                calendars:[self.eventStore.defaultCalendarForNewReminders()!])
-            
-            self.eventStore.predicateForReminders(in: [self.eventStore.defaultCalendarForNewReminders()!])
-            self.eventStore.fetchReminders(matching: reminderPredicate) { (reminders:[EKReminder]?) -> Void in
-                do{
-                    try reminders?.forEach{ reminder in
-                        try self.eventStore.remove(reminder, commit: true);
-                    }
-                }catch{
-                    //ignore
                 }
             }
             return true
