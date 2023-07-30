@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
-import 'package:lapse/business/memory/added/learning_curve.dart';
+import 'package:lapse/business/memory/added/memory/learning_curve.dart';
 import 'package:lapse/business/memory/common/util/common_formats.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
