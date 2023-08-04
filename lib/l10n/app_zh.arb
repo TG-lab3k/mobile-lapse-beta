@@ -24,5 +24,6 @@
   "commonSaturday":"星期六",
   "commonSunday":"星期日",
   "commonDelete":"删除",
-  "commonCancel":"取消"
+  "commonCancel":"取消",
+  "eventContentHint":"请输入标题、内容（可选）、标签（可选）"
 }

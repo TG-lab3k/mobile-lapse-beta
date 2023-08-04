@@ -55,7 +55,8 @@ class _MemoryHomePageState extends State<MemoryHomePage> {
           IconButton(
             icon: Assets.image("added.png"),
             onPressed: () {
-              context.go("/lapse/memory/added");
+              //context.go("/lapse/memory/added");
+              context.go("/lapse/event/added/common");
             },
           ),
         ],

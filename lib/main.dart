@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lapse/business/memory/added/common/added_common_page.dart';
 import 'package:lapse/business/memory/added/memory/added_page.dart';
 import 'package:lapse/business/memory/detail/detail_page.dart';
 import 'package:lapse/business/memory/home/home_page.dart';
@@ -28,6 +29,12 @@ final GoRouter _router = GoRouter(
           builder: (BuildContext context, GoRouterState state) {
             var contentId = state.pathParameters["contentId"];
             return DetailPage(contentId);
+          },
+        ),
+        GoRoute(
+          path: 'lapse/event/added/common',
+          builder: (BuildContext context, GoRouterState state) {
+            return AddedCommonPage();
           },
         ),
       ],
