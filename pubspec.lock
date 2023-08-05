@@ -630,6 +630,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  simple_tags:
+    dependency: "direct main"
+    description:
+      name: simple_tags
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.6"
   sky_engine:
     dependency: transitive
     description: flutter
