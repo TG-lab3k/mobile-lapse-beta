@@ -176,11 +176,11 @@ class _AddedPageState extends State<AddedPage> {
 
     TenantBo tenantBo = TenantBo(id: 1);
 
-    MemoryContentBo memoryContentBo = MemoryContentBo(
+    EventBo memoryContentBo = EventBo(
         title: title, content: content, tenant: tenantBo, schedules: schedules);
 
     String appName = TextI18ns.from(context).appName;
-    await _addedService.createMemoryContent(memoryContentBo, appName);
+    await _addedService.createEventContent(memoryContentBo, appName);
     String memAddedSuccess = TextI18ns.from(context).memAddedSuccess;
     Toasts.toast(memAddedSuccess);
     context.go("/");

@@ -6,8 +6,8 @@ import 'package:lapse/business/memory/repository/database/schedule.dart';
 
 const String _logTag = "#DetailService#";
 
-class DetailService extends Cubit<MemoryContentBo> {
-  DetailService() : super(MemoryContentBo());
+class DetailService extends Cubit<EventBo> {
+  DetailService() : super(EventBo());
 
   DatabaseRepository _databaseRepository = DatabaseRepository();
   CalendarRepository _calendarRepository = CalendarRepository();
@@ -33,7 +33,7 @@ class DetailService extends Cubit<MemoryContentBo> {
     return updateScheduleBo;
   }
 
-  Future<void> deleteContent(MemoryContentBo memoryContentBo) async {
+  Future<void> deleteContent(EventBo memoryContentBo) async {
     if (memoryContentBo.id != null) {
       await _databaseRepository.deleteContent(memoryContentBo.id!);
     }

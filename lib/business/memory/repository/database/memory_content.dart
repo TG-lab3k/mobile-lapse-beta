@@ -4,7 +4,7 @@ import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tag.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
 
-class MemoryContentBo extends BaseBo {
+class EventBo extends BaseBo {
   String? title;
   String? content;
 
@@ -14,7 +14,7 @@ class MemoryContentBo extends BaseBo {
 
   List<ScheduleBo>? schedules;
 
-  MemoryContentBo(
+  EventBo(
       {this.title,
       this.content,
       this.tenant,

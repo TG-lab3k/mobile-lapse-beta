@@ -4,7 +4,7 @@ import 'package:lapse/business/memory/repository/database/database_repository.da
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 
 class HomeState {
-  List<MemoryContentBo>? memoryContents;
+  List<EventBo>? memoryContents;
 
   HomeState({this.memoryContents});
 }
@@ -24,7 +24,7 @@ class HomeService extends Cubit<HomeState> {
       var contentIds =
           contentBos.map((contentBo) => contentBo.id!).toList(growable: false);
       var scheduleBos = await _databaseRepository.listSchedule(contentIds);
-      final Map<int, MemoryContentBo> contentBoMap = Map();
+      final Map<int, EventBo> contentBoMap = Map();
       for (var contentBo in contentBos) {
         contentBoMap[contentBo.id!] = contentBo;
       }

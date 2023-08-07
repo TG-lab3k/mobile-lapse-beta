@@ -12,7 +12,7 @@ const double heightItem = 15;
 const _TAG = "HomeTimelineItemWidget";
 
 class HomeTimelineItemWidget extends StatefulWidget {
-  MemoryContentBo memoryContentBo;
+  EventBo memoryContentBo;
 
   HomeTimelineItemWidget(this.memoryContentBo);
 
@@ -174,8 +174,8 @@ class _HomeTimelineState extends State<HomeTimelineWidget> {
   }
 
   Widget _buildTimelineContent(BuildContext context) {
-    List<MemoryContentBo>? memoryContents = widget.homeState?.memoryContents;
-    List<MemoryContentBo> contents =
+    List<EventBo>? memoryContents = widget.homeState?.memoryContents;
+    List<EventBo> contents =
         memoryContents != null ? memoryContents : [];
 
     return ListView.builder(

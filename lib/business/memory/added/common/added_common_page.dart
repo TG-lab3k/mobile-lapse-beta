@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import 'package:lapse/business/memory/added/memory/added_service.dart';
 import 'package:lapse/business/memory/common/util/common_formats.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/memory/repository/database/tag.dart';
 import 'package:lapse/business/memory/repository/database/tenant.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
@@ -26,6 +29,14 @@ class AddedCommonPage extends StatefulWidget {
 
 const double paddingStart = 16;
 const double paddingTop = 15;
+
+class _Event {
+  String? title;
+  String? content;
+  List<String>? tags;
+
+  _Event(this.title, this.content, this.tags);
+}
 
 class _AddedCommonState extends State<AddedCommonPage> {
   final TextEditingController _contentEditingController =
@@ -65,11 +76,76 @@ class _AddedCommonState extends State<AddedCommonPage> {
   }
 
   _createEvent(BuildContext context) async {
-    _resolveEventContent();
+    _Event? event = _resolveEventContent();
+    if (event != null) {
+      DateTime nowAt = DateTime.now();
+      if (nowAt.isAfter(_reminderTime!)) {
+        String reminderTimeBeforeNow =
+            TextI18ns.from(context).eventAdded_reminderTimeBeforeNow;
+        Toasts.toast(reminderTimeBeforeNow);
+        return;
+      }
+
+      var scheduleBo = ScheduleBo(
+          actionAt: _reminderTime!.millisecondsSinceEpoch,
+          status: ScheduleStatus.todo.index);
+      List<ScheduleBo> schedules = [scheduleBo];
+      TenantBo tenantBo = TenantBo(id: -1);
+      EventBo eventBo = EventBo(
+          title: event.title,
+          content: event.content,
+          tenant: tenantBo,
+          schedules: schedules);
+
+      List<String>? tagList = event.tags;
+      Map<String, Map> tagMap = HashMap();
+      Map<String, TagBo> tagBoMap = HashMap();
+      tagList?.forEach((originTagString) {
+        //Resolve tag
+        List<String> tagStrList = originTagString.split("/");
+        Map? downMap;
+        TagBo? downTagBo;
+        for (int i = 0; i < tagStrList.length; i++) {
+          String tag = tagStrList.elementAt(i);
+          if (i == 0) {
+            downMap = tagMap[tag];
+            if (downMap == null) {
+              downMap = HashMap();
+              tagMap[tag] = downMap;
+            }
+
+            downTagBo = tagBoMap[tag];
+            if (downTagBo == null) {
+              downTagBo = TagBo(tag: tag);
+              downTagBo.children = [];
+              tagBoMap[tag] = downTagBo;
+            }
+          } else {
+            Map? nextMap = downMap?[tag];
+            if (nextMap == null) {
+              nextMap = HashMap();
+              downMap?[tag] = nextMap;
+
+              TagBo? nextTagBo = TagBo(tag: tag);
+              nextTagBo.children = [];
+              downTagBo?.children?.add(nextTagBo);
+              downTagBo = nextTagBo;
+            }
+            downMap = nextMap;
+          }
+        }
+      });
+
+      eventBo.tags = List.from(tagBoMap.values);
+      String appName = TextI18ns.from(context).appName;
+      await _addedService.createEventContent(eventBo, appName);
+      String memAddedSuccess = TextI18ns.from(context).memAddedSuccess;
+      Toasts.toast(memAddedSuccess);
+      context.go("/");
+    }
   }
 
   Widget buildPage(BuildContext context) {
-    _spendTimeEditingController.text = "30"; //预计完成时长--默认30分钟
     final AppLocalizations localizations = TextI18ns.from(context);
     const radius = Radius.circular(8.0);
     const textFieldStyle = TextStyle(fontSize: 16, color: colorPrimary7);
@@ -115,37 +191,6 @@ class _AddedCommonState extends State<AddedCommonPage> {
                   const EdgeInsets.fromLTRB(paddingStart, 10, paddingStart, 10),
               child: buildTags(),
             )),
-            /*
-            SliverToBoxAdapter(
-                child: Container(
-                    padding: const EdgeInsets.fromLTRB(
-                        paddingStart, 10, paddingStart, 10),
-                    child: Row(
-                      children: <Widget>[
-                        Text("预计完成时长"),
-                        Flexible(
-                          child: SizedBox(
-                              width: 50,
-                              child: Container(
-                                  margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                        color: colorPrimary9,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(3))),
-                                    child: TextField(
-                                        maxLines: 1,
-                                        style: textFieldStyle,
-                                        cursorColor: colorPrimary8,
-                                        keyboardType: TextInputType.number,
-                                        controller: _spendTimeEditingController,
-                                        decoration: buildInputDecoration("")),
-                                  ))),
-                        ),
-                        Text("分钟")
-                      ],
-                    ))),
-            */
             SliverToBoxAdapter(
                 child: Container(
               padding:
@@ -306,13 +351,13 @@ class _AddedCommonState extends State<AddedCommonPage> {
     }
   }
 
-  _resolveEventContent() {
+  _Event? _resolveEventContent() {
     var text = _contentEditingController.value.text;
     if (text.trim().isEmpty) {
       String canNotEmpty =
           TextI18ns.from(context).eventAdded_contentCanNotEmpty;
       Toasts.toast(canNotEmpty);
-      return;
+      return null;
     }
 
     /**
@@ -345,10 +390,10 @@ class _AddedCommonState extends State<AddedCommonPage> {
     if (title.isEmpty) {
       String canNotEmpty = TextI18ns.from(context).eventAdded_titleCanNotEmpty;
       Toasts.toast(canNotEmpty);
-      return;
+      return null;
     }
 
-    //TODO
+    return _Event(title, eventContent, tagList);
   }
 
   _resolveEventTag(String text, List<String> tagList) {

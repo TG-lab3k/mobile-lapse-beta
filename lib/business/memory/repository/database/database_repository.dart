@@ -8,16 +8,15 @@ import 'package:lapse/infra/data/database/database_helper.dart';
 import 'package:lapse/infra/data/database/model/memory_model.dart';
 
 class DatabaseRepository {
-  Future<MemoryContentBo> createMemoryContent(
-      MemoryContentBo memoryContentBo) async {
-    final TenantBo? tenantBo = memoryContentBo.tenant;
+  Future<EventBo> createEventContent(EventBo eventBo) async {
+    final TenantBo? tenantBo = eventBo.tenant;
     if (tenantBo == null || tenantBo.id == null) {
-      return memoryContentBo;
+      return eventBo;
     }
 
-    //update tag
+    //Update tag
     List<int> tagIds = [];
-    List<TagBo>? tags = memoryContentBo.tags;
+    List<TagBo>? tags = eventBo.tags;
     List<TagModel> newTags = [];
     tags?.forEach((tag) {
       if (tag.id != null) {
@@ -38,10 +37,8 @@ class DatabaseRepository {
 
     //Content
     var contentModel = await databaseHelper.createContent(MemoryContentModel(
-        title: memoryContentBo.title,
-        content: memoryContentBo.content,
-        tenantId: tenantBo.id));
-    memoryContentBo.id = contentModel.id;
+        title: eventBo.title, content: eventBo.content, tenantId: tenantBo.id));
+    eventBo.id = contentModel.id;
 
     //Tag mapping
     if (tagIds.isNotEmpty) {
@@ -50,36 +47,36 @@ class DatabaseRepository {
     }
 
     //Schedule
-    var schedules = memoryContentBo.schedules;
+    var schedules = eventBo.schedules;
     if (schedules?.isNotEmpty == true) {
       List<ScheduleModel> scheduleModelList = [];
-      var scheduleBoList = memoryContentBo.schedules;
+      var scheduleBoList = eventBo.schedules;
       scheduleBoList?.forEach((scheduleBo) {
         scheduleModelList.add(ScheduleModel(
             actionAt: scheduleBo.actionAt,
-            memoryId: memoryContentBo.id!,
+            memoryId: eventBo.id!,
             status: scheduleBo.status,
             tenantId: tenantBo.id));
       });
       await databaseHelper.createSchedules(
-          memoryContentBo.id!, scheduleModelList, tenantBo.id!);
+          eventBo.id!, scheduleModelList, tenantBo.id!);
     }
 
-    return memoryContentBo;
+    return eventBo;
   }
 
-  Future<MemoryContentBo> getMemoryContent(int contentId) async {
+  Future<EventBo> getMemoryContent(int contentId) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     var contentModel = await databaseHelper.getMemoryContent(contentId);
     var contentBoList = _transformMemoryContent([contentModel]);
     if (contentBoList.length == 0) {
-      return MemoryContentBo();
+      return EventBo();
     } else {
       return contentBoList[0];
     }
   }
 
-  Future<List<MemoryContentBo>> listMemoryContent(List<int> tenantIds) async {
+  Future<List<EventBo>> listMemoryContent(List<int> tenantIds) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<MemoryContentModel> contentModelList =
         await databaseHelper.listMemoryContent(tenantIds);
@@ -96,11 +93,11 @@ class DatabaseRepository {
     return scheduleBo;
   }
 
-  List<MemoryContentBo> _transformMemoryContent(
+  List<EventBo> _transformMemoryContent(
       List<MemoryContentModel> contentModelList) {
-    List<MemoryContentBo> contentBoList = [];
+    List<EventBo> contentBoList = [];
     for (var contentModel in contentModelList) {
-      contentBoList.add(MemoryContentBo(
+      contentBoList.add(EventBo(
           title: contentModel.title,
           content: contentModel.content,
           id: contentModel.id,

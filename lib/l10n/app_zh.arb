@@ -8,6 +8,7 @@
   "memAddedSuccess":"创建成功",
   "eventAdded_contentCanNotEmpty":"事件内容不能为空",
   "eventAdded_titleCanNotEmpty":"新提醒事件需要标题，写在第一行",
+  "eventAdded_reminderTimeBeforeNow":"提醒时间小于当前，请重新设置提醒时间",
   "memAddedTipsNoTitle":"请输入标题",
   "memDetailTitle":"详情",
   "memContentDeleteConfirm":"您确定要删除当前内容吗？",

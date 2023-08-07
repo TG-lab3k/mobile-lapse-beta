@@ -27,7 +27,7 @@ class _DetailPageState extends State<DetailPage> {
   final DetailService detailService = DetailService();
 
   int contentId = 0;
-  MemoryContentBo? _memoryContentBo;
+  EventBo? _memoryContentBo;
 
   void _updateScheduleState(BuildContext context, ScheduleBo scheduleBo) async {
     await detailService.updateScheduleStatus(scheduleBo);
@@ -81,7 +81,7 @@ class _DetailPageState extends State<DetailPage> {
       contentId = id!;
       return BlocProvider(
           create: (_) => detailService..acquireMemoryContent(contentId),
-          child: BlocBuilder<DetailService, MemoryContentBo>(
+          child: BlocBuilder<DetailService, EventBo>(
               builder: (blocContext, memoryContentBo) {
             _memoryContentBo = memoryContentBo;
             return Skeleton(
@@ -104,7 +104,7 @@ class _DetailPageState extends State<DetailPage> {
     return Skeleton(title: title, body: Container());
   }
 
-  Widget buildPage(BuildContext context, MemoryContentBo memoryContentBo) {
+  Widget buildPage(BuildContext context, EventBo memoryContentBo) {
     print("$_logTag @buildPage _______ contentBo: ${memoryContentBo.id}");
     const radius = Radius.circular(8.0);
     var topWidget = SliverToBoxAdapter(

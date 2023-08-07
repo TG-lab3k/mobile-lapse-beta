@@ -5,7 +5,7 @@ import 'package:lapse/infra/plugin/calendar_plugin.dart';
 const AHEAD_MINUTES = 5;
 const EVENT_DURATION = Duration(minutes: 30);
 class CalendarRepository {
-  createSchedules(MemoryContentBo memoryContentBo, String location) async {
+  createSchedules(EventBo memoryContentBo, String location) async {
     List<ScheduleBo>? schedules = memoryContentBo.schedules;
     if (schedules == null) {
       return;
@@ -29,7 +29,7 @@ class CalendarRepository {
     });
   }
 
-  deleteSchedules(MemoryContentBo memoryContentBo) async {
+  deleteSchedules(EventBo memoryContentBo) async {
     List<ScheduleBo>? schedules = memoryContentBo.schedules;
     if (schedules == null) {
       return;

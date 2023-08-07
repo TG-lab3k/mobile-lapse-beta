@@ -4,6 +4,7 @@ class TagBo extends BaseBo {
   String? tag;
   int? num;
   int? tenantId;
+  List<TagBo>? children;
 
   TagBo(
       {this.tag,
