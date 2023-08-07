@@ -64,45 +64,12 @@ class _AddedCommonState extends State<AddedCommonPage> {
         border: InputBorder.none);
   }
 
-  List<DateTime> _getDateTimes() {
-    List<DateTime> dateTimes = [];
-    _timelineList.forEach((selectedAt) {
-      dateTimes.add(selectedAt);
-    });
-    return dateTimes;
-  }
-
-  _createMemoryContent(BuildContext context) async {
-    var title = "";
-    var content = _contentEditingController.value.text;
-    if (title.isEmpty) {
-      String noTitle = TextI18ns.from(context).memAddedTipsNoTitle;
-      Toasts.toast(noTitle);
-      return;
-    }
-    var times = _getDateTimes();
-    List<ScheduleBo> schedules = [];
-    times.forEach((time) {
-      var scheduleBo = ScheduleBo(
-          actionAt: time.millisecondsSinceEpoch,
-          status: ScheduleStatus.todo.index);
-      schedules.add(scheduleBo);
-    });
-
-    TenantBo tenantBo = TenantBo(id: 1);
-
-    MemoryContentBo memoryContentBo = MemoryContentBo(
-        title: title, content: content, tenant: tenantBo, schedules: schedules);
-
-    String appName = TextI18ns.from(context).appName;
-    await _addedService.createMemoryContent(memoryContentBo, appName);
-    String memAddedSuccess = TextI18ns.from(context).memAddedSuccess;
-    Toasts.toast(memAddedSuccess);
-    context.go("/");
+  _createEvent(BuildContext context) async {
+    _resolveEventContent();
   }
 
   Widget buildPage(BuildContext context) {
-    _spendTimeEditingController.text = "30";
+    _spendTimeEditingController.text = "30"; //预计完成时长--默认30分钟
     final AppLocalizations localizations = TextI18ns.from(context);
     const radius = Radius.circular(8.0);
     const textFieldStyle = TextStyle(fontSize: 16, color: colorPrimary7);
@@ -110,36 +77,31 @@ class _AddedCommonState extends State<AddedCommonPage> {
         child: Container(
             decoration: const BoxDecoration(color: colorPrimary5),
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: Column(
-              children: [
-                Container(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    decoration: const BoxDecoration(
-                        color: colorPrimary6,
-                        borderRadius: BorderRadius.only(
-                            topLeft: radius, topRight: radius)),
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                decoration: const BoxDecoration(
+                    color: colorPrimary6,
+                    borderRadius:
+                        BorderRadius.only(topLeft: radius, topRight: radius)),
+                child: Container(
+                    padding: const EdgeInsets.fromLTRB(
+                        paddingStart, 0, paddingStart, 0),
                     child: Container(
-                        padding: const EdgeInsets.fromLTRB(
-                            paddingStart, 0, paddingStart, 0),
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          decoration: const BoxDecoration(
-                              color: colorPrimary9,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(3))),
-                          child: TextField(
-                            minLines: 10,
-                            maxLines: 10,
-                            style: textFieldStyle,
-                            cursorColor: colorPrimary8,
-                            controller: _contentEditingController,
-                            focusNode: _focusNode,
-                            decoration: buildInputDecoration(
-                                localizations.eventContentHint),
-                          ),
-                        ))),
-              ],
-            )));
+                      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      decoration: const BoxDecoration(
+                          color: colorPrimary9,
+                          borderRadius: BorderRadius.all(Radius.circular(3))),
+                      child: TextField(
+                        minLines: 10,
+                        maxLines: 10,
+                        style: textFieldStyle,
+                        cursorColor: colorPrimary8,
+                        controller: _contentEditingController,
+                        focusNode: _focusNode,
+                        decoration: buildInputDecoration(
+                            localizations.eventContentHint),
+                      ),
+                    )))));
 
     var contentWidget = Container(
         decoration: const BoxDecoration(color: colorPrimary6),
@@ -153,6 +115,7 @@ class _AddedCommonState extends State<AddedCommonPage> {
                   const EdgeInsets.fromLTRB(paddingStart, 10, paddingStart, 10),
               child: buildTags(),
             )),
+            /*
             SliverToBoxAdapter(
                 child: Container(
                     padding: const EdgeInsets.fromLTRB(
@@ -182,6 +145,7 @@ class _AddedCommonState extends State<AddedCommonPage> {
                         Text("分钟")
                       ],
                     ))),
+            */
             SliverToBoxAdapter(
                 child: Container(
               padding:
@@ -257,7 +221,7 @@ class _AddedCommonState extends State<AddedCommonPage> {
               margin: const EdgeInsets.only(
                   left: 20, right: 20, top: 60, bottom: 30),
               child: Clickable(
-                listener: (_) => _createMemoryContent(context),
+                listener: (_) => _createEvent(context),
                 host: Container(
                   margin: const EdgeInsets.only(left: 20, right: 20),
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -309,28 +273,20 @@ class _AddedCommonState extends State<AddedCommonPage> {
 
   Widget buildTags() {
     List<String> tagDataList = [
-      '# 英语/单词/高频词',
-      '# 英语/单词/阅读生词',
-      '# 英语/阅读',
-      '# 英语/看电影',
-      '# 数学/逻辑思维',
-      '# 数学/几何空间',
-      '# 数学/推理',
+      '#英语/单词/高频词',
+      '#英语/单词/阅读生词',
+      '#英语/阅读',
+      '#英语/看电影',
+      '#数学/逻辑思维',
+      '#数学/几何空间',
+      '#数学/推理',
     ];
 
     return SimpleTags(
       content: tagDataList,
       wrapSpacing: 4,
       wrapRunSpacing: 4,
-      onTagPress: (tag) {
-        print('pressed $tag');
-      },
-      onTagLongPress: (tag) {
-        print('long pressed $tag');
-      },
-      onTagDoubleTap: (tag) {
-        print('double tapped $tag');
-      },
+      onTagPress: _resolveTag,
       tagContainerPadding: EdgeInsets.all(6),
       tagTextStyle: TextStyle(
           fontSize: 11, color: Color.fromARGB(0xff, 0x1b, 0xdb, 0x96)),
@@ -341,6 +297,90 @@ class _AddedCommonState extends State<AddedCommonPage> {
         ),
       ),
     );
+  }
+
+  _resolveTag(String tag) {
+    var text = _contentEditingController.value.text;
+    if (text.isEmpty || !text.contains(tag)) {
+      _contentEditingController.text = text + ' ' + tag;
+    }
+  }
+
+  _resolveEventContent() {
+    var text = _contentEditingController.value.text;
+    if (text.trim().isEmpty) {
+      String canNotEmpty =
+          TextI18ns.from(context).eventAdded_contentCanNotEmpty;
+      Toasts.toast(canNotEmpty);
+      return;
+    }
+
+    /**
+     * 输入规则
+     * 标题<换号符号>
+     * 内容<换号符号>
+     * #标签
+     */
+
+    int titleEndIndex = text.indexOf("\n");
+    String title = "";
+    String eventContent = "";
+    int contentStartIndex = 0;
+    List<String> tagList = [];
+    if (titleEndIndex != -1) {
+      title = text.substring(0, titleEndIndex);
+      contentStartIndex = titleEndIndex + 1;
+
+      text = text.substring(contentStartIndex);
+      eventContent = _resolveEventTag(text, tagList);
+    } else {
+      title = _resolveEventTag(text, tagList);
+    }
+
+    print("#_resolveEventContent# title: [$title]");
+    print("#_resolveEventContent# content: [$eventContent]");
+    tagList.forEach((tag) {
+      print("#_resolveEventContent# tag: [$tag]");
+    });
+    if (title.isEmpty) {
+      String canNotEmpty = TextI18ns.from(context).eventAdded_titleCanNotEmpty;
+      Toasts.toast(canNotEmpty);
+      return;
+    }
+
+    //TODO
+  }
+
+  _resolveEventTag(String text, List<String> tagList) {
+    //Event Content And Tags
+    String eventContent = "";
+    //resolve tags
+    int tagSearchStartIndex = 0;
+    int tagStartIndex = text.indexOf("#", tagSearchStartIndex);
+    if (tagStartIndex > 0) {
+      eventContent = text.substring(0, tagStartIndex);
+      int tagEndIndex = -1;
+      do {
+        tagEndIndex = text.indexOf("#", tagStartIndex + 2);
+        if (tagEndIndex == -1) {
+          tagEndIndex = text.indexOf(" ", tagStartIndex + 1);
+          if (tagEndIndex == -1) {
+            tagEndIndex = text.length;
+          }
+        }
+        String tag = text.substring(tagStartIndex + 1, tagEndIndex).trim();
+        tagList.add(tag);
+        tagSearchStartIndex = tagEndIndex;
+      } while (tagSearchStartIndex < text.length &&
+          (tagStartIndex = text.indexOf("#", tagSearchStartIndex)) > 0);
+    } else {
+      eventContent = text;
+    }
+
+    if (eventContent.isNotEmpty) {
+      eventContent = eventContent.trim();
+    }
+    return eventContent;
   }
 
   @override
