@@ -1,5 +1,8 @@
 //
 
+import 'dart:collection';
+
+import 'package:lapse/business/memory/home/schedule_service.dart';
 import 'package:lapse/business/memory/repository/database/memory_content.dart';
 import 'package:lapse/business/memory/repository/database/schedule.dart';
 import 'package:lapse/business/memory/repository/database/tag.dart';
@@ -76,6 +79,32 @@ class DatabaseRepository {
     }
   }
 
+  Future<List<ScheduleWrapperBo>?> listScheduleEvent() async {
+    List<ScheduleEventBo>? list = null;
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    List<ScheduleModel> scheduleList = await databaseHelper
+        .listSchedulesWithStatus(
+            [ScheduleStatus.todo.index, ScheduleStatus.overdue.index]);
+
+    List<int> eventIdList = List.from(scheduleList.map((e) => e.memoryId));
+    List<MemoryContentModel>? eventList =
+        await databaseHelper.listEvent(eventIdList);
+    Map<int, MemoryContentModel> eventMap = HashMap();
+    eventList?.forEach((eventModel) {
+      eventMap[eventModel.id!] = eventModel;
+    });
+
+    List<ScheduleWrapperBo> scheduleWrapperList = [];
+    scheduleList.forEach((scheduleModel) {
+      ScheduleWrapperBo scheduleWrapperBo = ScheduleWrapperBo(scheduleModel);
+      int? eventId = scheduleModel.memoryId;
+      MemoryContentModel? eventModel = eventMap[eventId];
+      scheduleWrapperBo.eventModel = eventModel;
+      scheduleWrapperList.add(scheduleWrapperBo);
+    });
+    return scheduleWrapperList;
+  }
+
   Future<List<EventBo>> listMemoryContent(List<int> tenantIds) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<MemoryContentModel> contentModelList =
@@ -137,5 +166,11 @@ class DatabaseRepository {
   Future<void> deleteContent(int contentId) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     databaseHelper.deleteMemoryContent(contentId);
+  }
+
+  Future<List<ScheduleBo>> listTodoSchedules() async {
+    List<ScheduleBo> scheduleBoList = [];
+
+    return scheduleBoList;
   }
 }

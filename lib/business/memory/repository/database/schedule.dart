@@ -1,4 +1,5 @@
 import 'package:lapse/business/memory/repository/database/common.dart';
+import 'package:lapse/infra/data/database/model/memory_model.dart';
 
 class ScheduleBo extends BaseBo {
   int? actionAt;
@@ -26,6 +27,13 @@ class ScheduleBo extends BaseBo {
             serverUpdateAt: serverUpdateAt,
             createAt: createAt,
             updateAt: updateAt);
+}
+
+class ScheduleWrapperBo {
+  MemoryContentModel? eventModel;
+  ScheduleModel scheduleModel;
+
+  ScheduleWrapperBo(this.scheduleModel);
 }
 
 enum ScheduleStatus {

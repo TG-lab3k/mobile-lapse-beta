@@ -250,7 +250,7 @@ class DatabaseHelper {
 
   Future<MemoryContentModel> getMemoryContent(int memoryId) async {
     var database = await _getWriteDatabase();
-    var sql = _SQL.sqlMemoryContentSelectOne();
+    var sql = _SQL.sqlMemoryContentSelect([memoryId]);
     var results = await database.rawQuery(sql, [memoryId]);
     var contents = mappingMemoryContent(results);
     if (contents.length == 0) {
@@ -260,10 +260,31 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<MemoryContentModel>?> listEvent(List<int> eventIdList) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlMemoryContentSelect(eventIdList);
+    var results = await database.rawQuery(sql, eventIdList);
+    var events = mappingMemoryContent(results);
+    if (events.length == 0) {
+      return [];
+    } else {
+      return events;
+    }
+  }
+
   Future<List<ScheduleModel>> listSchedules(List<int> memoryIds) async {
     var database = await _getWriteDatabase();
     var sql = _SQL.sqlScheduleWithContent(memoryIds);
     var results = await database.rawQuery(sql, memoryIds);
+    var schedules = mappingScheduleModel(results);
+    return schedules;
+  }
+
+  Future<List<ScheduleModel>> listSchedulesWithStatus(
+      List<int> statusList) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlScheduleWithStatus(statusList);
+    var results = await database.rawQuery(sql, statusList);
     var schedules = mappingScheduleModel(results);
     return schedules;
   }
@@ -393,7 +414,12 @@ class _SQL {
     ]);
   }
 
-  static String sqlMemoryContentSelectOne() {
+  static String sqlMemoryContentSelect(List<int> ids) {
+    var whereBuilder = StringBuffer();
+    for (int i = 0; i < ids.length; i++) {
+      whereBuilder.write(",?");
+    }
+    var whereArgs = whereBuilder.toString().substring(1);
     return _buildSelectSql(
         MemoryContentModel.tableName,
         [
@@ -407,7 +433,7 @@ class _SQL {
           _createAt,
           _updateAt
         ],
-        where: "$_id=?");
+        where: "$_id in($whereArgs)");
   }
 
   static String sqlMemoryContentSelectList(List<int> tenantIds) {
@@ -456,6 +482,32 @@ class _SQL {
           _updateAt
         ],
         where: " $_memoryId in ($parameters)");
+  }
+
+  static String sqlScheduleWithStatus(List<int> statusList) {
+    var builder = StringBuffer();
+    statusList.forEach((status) {
+      builder.write("?,");
+    });
+
+    var length = builder.length;
+    var parameters = builder.toString().substring(0, length - 1);
+    return _buildSelectSql(
+        ScheduleModel.tableName,
+        [
+          _id,
+          _actionAt,
+          _memoryId,
+          _status,
+          _doneAt,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt
+        ],
+        where: " $_status in ($parameters)");
   }
 
   static String sqlScheduleUpdateStatus() {

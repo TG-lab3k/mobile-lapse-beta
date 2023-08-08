@@ -256,7 +256,7 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
             CommonFormats.formatRemainingTime(doneAt, nowAt, context);
         print("$_logTag @formatTimeHint doneHint: $doneHint");
         if (doneHint.isNotEmpty) {
-          var week = CommonFormats.formatWeek(context, doneAt);
+          var week = CommonFormats.formatWeek(localizations, doneAt);
           if (week.length > 0) {
             week += separator;
           }
@@ -277,7 +277,7 @@ class _DetailScheduleState extends State<_DetailScheduleWidget> {
         var expectingHint =
             CommonFormats.formatRemainingTime(nowAt, actionAt, context);
         if (expectingHint.isNotEmpty) {
-          var week = CommonFormats.formatWeek(context, actionAt);
+          var week = CommonFormats.formatWeek(localizations, actionAt);
           if (week.length > 0) {
             week += separator;
           }

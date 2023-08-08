@@ -28,5 +28,10 @@
   "commonSunday":"星期日",
   "commonDelete":"删除",
   "commonCancel":"取消",
+  "commonDateBeforeSeveralDay":"天前",
+  "commonDateBeforeOneDay":"昨天",
+  "commonDateToday":"今天",
+  "commonDateAfterOneDay":"明天",
+  "commonDateAfterSeveralDay":"天后",
   "eventContentHint":"请输入标题、内容（可选）、标签（可选）"
 }

@@ -82,7 +82,7 @@ class _AmendTimelineItemState extends State<_AmendTimelineItemWidget> {
     var remaining =
         CommonFormats.formatRemainingTime(widget.startAt, endAt, context);
     if (remaining.isNotEmpty) {
-      var week = CommonFormats.formatWeek(context, endAt);
+      var week = CommonFormats.formatWeek(localizations, endAt);
       if (week.length > 0) {
         week += "  ";
       }
