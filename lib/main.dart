@@ -17,7 +17,7 @@ final GoRouter _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: '/',
-      builder: (BuildContext context, GoRouterState state) => MemoryHomePage(),
+      builder: (BuildContext context, GoRouterState state) => EventHomePage(),
       routes: <RouteBase>[
         GoRoute(
           path: 'lapse/memory/added',

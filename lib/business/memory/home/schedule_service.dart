@@ -25,12 +25,12 @@ class ScheduleState {
   ScheduleState({this.scheduleEventList});
 }
 
-class HomeService extends Cubit<ScheduleState> {
+class ScheduleService extends Cubit<ScheduleState> {
   DatabaseRepository _databaseRepository = DatabaseRepository();
   VoidCallback? listContentCompleted;
   AppLocalizations? localizations;
 
-  HomeService({this.listContentCompleted}) : super(ScheduleState());
+  ScheduleService({this.listContentCompleted}) : super(ScheduleState());
 
   listScheduleEvent() async {
     List<ScheduleWrapperBo>? scheduleWrapperList =
