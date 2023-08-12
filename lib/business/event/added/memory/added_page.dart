@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lapse/business/memory/added/memory/added_service.dart';
-import 'package:lapse/business/memory/added/memory/amend_timeline_widget.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
-import 'package:lapse/business/memory/repository/database/tenant.dart';
+import 'package:lapse/business/event/added/memory/added_service.dart';
+import 'package:lapse/business/event/added/memory/amend_timeline_widget.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
+import 'package:lapse/business/event/repository/database/tenant.dart';
 import 'package:lapse/infra/plugin/calendar_plugin.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/widget/clickable.dart';

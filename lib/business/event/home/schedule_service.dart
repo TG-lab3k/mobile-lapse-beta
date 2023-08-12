@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lapse/business/memory/common/util/common_formats.dart';
-import 'package:lapse/business/memory/repository/database/database_repository.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/event/common/util/common_formats.dart';
+import 'package:lapse/business/event/repository/database/database_repository.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
 import 'package:lapse/infra/data/database/model/memory_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

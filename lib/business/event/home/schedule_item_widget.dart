@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lapse/business/memory/common/util/common_formats.dart';
-import 'package:lapse/business/memory/home/schedule_service.dart';
+import 'package:lapse/business/event/common/util/common_formats.dart';
+import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/infra/asset/assets.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:simple_tags/simple_tags.dart';

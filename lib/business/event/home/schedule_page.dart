@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lapse/business/memory/home/schedule_item_widget.dart';
-import 'package:lapse/business/memory/home/schedule_service.dart';
+import 'package:lapse/business/event/home/schedule_item_widget.dart';
+import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';

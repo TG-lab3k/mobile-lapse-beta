@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lapse/business/memory/home/home_service.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/event/home/home_service.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';

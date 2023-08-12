@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lapse/business/memory/repository/calendar_repository.dart';
-import 'package:lapse/business/memory/repository/database/database_repository.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/event/repository/calendar_repository.dart';
+import 'package:lapse/business/event/repository/database/database_repository.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
 
 const String _logTag = "#DetailService#";
 

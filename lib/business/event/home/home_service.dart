@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lapse/business/memory/repository/database/database_repository.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/database_repository.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
 
 class HomeState {
   List<EventBo>? memoryContents;

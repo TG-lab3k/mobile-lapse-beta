@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lapse/business/memory/common/util/common_formats.dart';
-import 'package:lapse/business/memory/detail/detail_service.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/event/common/util/common_formats.dart';
+import 'package:lapse/business/event/detail/detail_service.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/skeleton.dart';

@@ -2,11 +2,11 @@
 
 import 'dart:collection';
 
-import 'package:lapse/business/memory/home/schedule_service.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
-import 'package:lapse/business/memory/repository/database/tag.dart';
-import 'package:lapse/business/memory/repository/database/tenant.dart';
+import 'package:lapse/business/event/home/schedule_service.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
+import 'package:lapse/business/event/repository/database/tag.dart';
+import 'package:lapse/business/event/repository/database/tenant.dart';
 import 'package:lapse/infra/data/database/database_helper.dart';
 import 'package:lapse/infra/data/database/model/memory_model.dart';
 

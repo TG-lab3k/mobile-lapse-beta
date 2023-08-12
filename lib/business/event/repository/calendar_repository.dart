@@ -1,5 +1,5 @@
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
-import 'package:lapse/business/memory/repository/database/schedule.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/database/schedule.dart';
 import 'package:lapse/infra/plugin/calendar_plugin.dart';
 
 const AHEAD_MINUTES = 5;
@@ -25,7 +25,7 @@ class CalendarRepository {
               actionAtMills + EVENT_DURATION.inMilliseconds),
           aheadInMinutes: AHEAD_MINUTES,
         ));
-      }
+      }]
     });
   }
 

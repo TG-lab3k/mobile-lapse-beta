@@ -1,4 +1,4 @@
-import 'package:lapse/business/memory/repository/database/common.dart';
+import 'package:lapse/business/event/repository/database/common.dart';
 
 class TagBo extends BaseBo {
   String? tag;

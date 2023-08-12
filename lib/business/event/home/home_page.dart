@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lapse/business/memory/home/schedule_page.dart';
-import 'package:lapse/business/memory/home/schedule_service.dart';
+import 'package:lapse/business/event/home/schedule_page.dart';
+import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/infra/asset/assets.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/widget/toasts.dart';

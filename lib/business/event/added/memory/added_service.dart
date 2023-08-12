@@ -1,6 +1,6 @@
-import 'package:lapse/business/memory/repository/calendar_repository.dart';
-import 'package:lapse/business/memory/repository/database/database_repository.dart';
-import 'package:lapse/business/memory/repository/database/memory_content.dart';
+import 'package:lapse/business/event/repository/calendar_repository.dart';
+import 'package:lapse/business/event/repository/database/database_repository.dart';
+import 'package:lapse/business/event/repository/database/memory_content.dart';
 
 class AddedService {
   CalendarRepository _calendarRepository = new CalendarRepository();
