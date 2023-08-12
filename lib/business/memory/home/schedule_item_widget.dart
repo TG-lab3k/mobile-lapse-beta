@@ -23,57 +23,49 @@ class ScheduleItemWidget extends StatelessWidget {
         children: [
           if (scheduleEventBo.expired)
             Container(
-              height: 60,
-              width: 1,
+              height: 50,
+              width: 1.5,
               alignment: Alignment.topLeft,
               decoration: const BoxDecoration(
                   color: Color.fromARGB(0xb2, 0xfa, 0x01, 0x01)),
             ),
           Container(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //header
                 Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${scheduleEventBo.dayLabel}  ${CommonFormats.dHHmmFormat.format(scheduleEventBo.actionAt!)}  ${scheduleEventBo.week}",
-                        maxLines: 1,
-                        style: TextStyle(fontSize: 16, color: colorPrimary03),
-                      ),
-
-                      //Item菜单
-                      IconButton(
-                        icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
-                        onPressed: () {
-                          //TODO
-                        },
-                      ),
-                    ],
+                    child: Text(
+                  "${scheduleEventBo.dayLabel}  ${CommonFormats.dHHmmFormat.format(scheduleEventBo.actionAt!)}  ${scheduleEventBo.week}",
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: colorPrimary03,
                   ),
-                ),
-
+                )),
                 //title
                 Container(
+                  margin: const EdgeInsets.only(top: 10),
                   child: Text(
                     "${scheduleEventBo.eventTitle}",
                     maxLines: 1,
-                    style: TextStyle(fontSize: 16, color: colorPrimary03),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorPrimary03,
+                    ),
                   ),
                 ),
 
                 //content
                 if (scheduleEventBo.eventContent?.isNotEmpty == true)
                   Container(
+                    margin: const EdgeInsets.only(top: 10),
                     child: Text(
                       "${scheduleEventBo.eventContent}",
                       maxLines: 1,
-                      style: TextStyle(fontSize: 14, color: colorPrimary04),
+                      style: TextStyle(fontSize: 16, color: colorPrimary04),
                     ),
                   ),
 
@@ -82,7 +74,22 @@ class ScheduleItemWidget extends StatelessWidget {
                   Container(child: buildTags(scheduleEventBo.tagList!)),
               ],
             ),
-          )
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.topRight,
+              height: 50,
+              width: 50,
+              padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+              child: IconButton(
+                icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
+                onPressed: () {
+                  //TODO
+                  print("点击Item菜单");
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
