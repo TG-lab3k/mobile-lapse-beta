@@ -25,7 +25,7 @@ class CalendarRepository {
               actionAtMills + EVENT_DURATION.inMilliseconds),
           aheadInMinutes: AHEAD_MINUTES,
         ));
-      }]
+      }
     });
   }
 
