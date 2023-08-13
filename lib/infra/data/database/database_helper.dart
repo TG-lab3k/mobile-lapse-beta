@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:lapse/infra/data/database/model/memory_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -151,8 +153,35 @@ class DatabaseHelper {
     //do nothing
   }
 
-  Future<List<TagModel>> createTags(List<TagModel> tags) async {
+  Future<List<TagModel>> saveTags(List<TagModel> tags) async {
     Database database = await _getWriteDatabase();
+    List<String> origTagLabels = [];
+    for (var newTag in tags) {
+      origTagLabels.add(newTag.tag!);
+    }
+    var selectSql = _SQL.sqlTagSelectWithTag(origTagLabels);
+    List<Map> results = await database.rawQuery(selectSql, origTagLabels);
+    Map<String, TagModel> existTagMap = HashMap();
+    if (results.isNotEmpty) {
+      var origList = mappingTagModel(results);
+      origList?.forEach((tagModel) {
+        existTagMap[tagModel.tag!] = tagModel;
+      });
+
+      List<TagModel> originTagList = tags;
+      List<TagModel> newTagList = [];
+      originTagList.forEach((originTag) {
+        var tagName = originTag.tag;
+        if (!existTagMap.containsKey(tagName)) {
+          newTagList.add(originTag);
+        }
+      });
+
+      if(newTagList.isEmpty){
+        return origList;
+      }
+    }
+
     await database.transaction((txn) async {
       var sql = _SQL.sqlTagInsert();
       var nowAt = DateTime.now().millisecondsSinceEpoch;
@@ -170,8 +199,8 @@ class DatabaseHelper {
       tagLabels.add(newTag.tag!);
     }
 
-    var selectSql = _SQL.sqlTagSelectWithTag(tagLabels);
-    List<Map> results = await database.rawQuery(selectSql, tagLabels);
+    selectSql = _SQL.sqlTagSelectWithTag(tagLabels);
+    results = await database.rawQuery(selectSql, tagLabels);
     var succeeds = mappingTagModel(results);
     return succeeds;
   }
@@ -272,6 +301,31 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<TagMappingModel>?> listTagMappingListWithEventIds(
+      List<int> eventIdList) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlTagMappingListWithEventIds(eventIdList);
+    var results = await database.rawQuery(sql, eventIdList);
+    var tagMappingList = mappingTagMapping(results);
+    if (tagMappingList.length == 0) {
+      return [];
+    } else {
+      return tagMappingList;
+    }
+  }
+
+  Future<List<TagModel>?> listTags(List<int> tagIdList) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlTagsSelect(tagIdList);
+    var results = await database.rawQuery(sql, tagIdList);
+    var tagList = mappingTagModel(results);
+    if (tagList.length == 0) {
+      return [];
+    } else {
+      return tagList;
+    }
+  }
+
   Future<List<ScheduleModel>> listSchedules(List<int> memoryIds) async {
     var database = await _getWriteDatabase();
     var sql = _SQL.sqlScheduleWithContent(memoryIds);
@@ -339,6 +393,24 @@ class DatabaseHelper {
     return contents;
   }
 
+  List<TagMappingModel> mappingTagMapping(List<Map> results) {
+    List<TagMappingModel> tagMappingList = [];
+    for (Map row in results) {
+      tagMappingList.add(TagMappingModel(
+        id: row[_id],
+        tagId: row[_tagId],
+        memoryId: row[_memoryId],
+        tenantId: row[_tenantId],
+        serverId: row[_serverId],
+        serverCreateAt: row[_serverCreateAt],
+        serverUpdateAt: row[_serverUpdateAt],
+        createAt: row[_createAt],
+        updateAt: row[_updateAt],
+      ));
+    }
+    return tagMappingList;
+  }
+
   List<ScheduleModel> mappingScheduleModel(List<Map> results) {
     List<ScheduleModel> schedules = [];
     for (Map row in results) {
@@ -400,18 +472,26 @@ class _SQL {
     return '''SELECT * FROM ${TagModel.tableName} WHERE $_tag in ($parameters)''';
   }
 
-  static String sqlTagSelectAll() {
-    return _buildSelectSql(TagModel.tableName, [
-      _id,
-      _tag,
-      _num,
-      _tenantId,
-      _serverId,
-      _serverCreateAt,
-      _serverUpdateAt,
-      _createAt,
-      _updateAt
-    ]);
+  static String sqlTagsSelect(List<int> ids) {
+    var whereBuilder = StringBuffer();
+    for (int i = 0; i < ids.length; i++) {
+      whereBuilder.write(",?");
+    }
+    var whereArgs = whereBuilder.toString().substring(1);
+    return _buildSelectSql(
+        TagModel.tableName,
+        [
+          _id,
+          _tag,
+          _num,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt
+        ],
+        where: "$_id in($whereArgs)");
   }
 
   static String sqlMemoryContentSelect(List<int> ids) {
@@ -434,6 +514,30 @@ class _SQL {
           _updateAt
         ],
         where: "$_id in($whereArgs)");
+  }
+
+  static String sqlTagMappingListWithEventIds(List<int> eventIdList) {
+    var whereBuilder = StringBuffer();
+    for (int i = 0; i < eventIdList.length; i++) {
+      whereBuilder.write(",?");
+    }
+    var whereArgs = whereBuilder.toString().substring(1);
+    return _buildSelectSql(
+        TagMappingModel.tableName,
+        [
+          _id,
+          _tagId,
+          _memoryId,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt,
+          _reserve1,
+          _reserve2
+        ],
+        where: "$_memoryId in($whereArgs)");
   }
 
   static String sqlMemoryContentSelectList(List<int> tenantIds) {

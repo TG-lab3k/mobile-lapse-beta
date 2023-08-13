@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lapse/business/event/added/memory/added_service.dart';
+import 'package:lapse/business/event/added/added_service.dart';
 import 'package:lapse/business/event/added/memory/amend_timeline_widget.dart';
 import 'package:lapse/business/event/repository/database/memory_content.dart';
 import 'package:lapse/business/event/repository/database/schedule.dart';

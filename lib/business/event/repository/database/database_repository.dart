@@ -2,7 +2,6 @@
 
 import 'dart:collection';
 
-import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/business/event/repository/database/memory_content.dart';
 import 'package:lapse/business/event/repository/database/schedule.dart';
 import 'package:lapse/business/event/repository/database/tag.dart';
@@ -32,7 +31,7 @@ class DatabaseRepository {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     //Tag
     if (newTags.isNotEmpty) {
-      newTags = await databaseHelper.createTags(newTags);
+      newTags = await databaseHelper.saveTags(newTags);
       newTags.forEach((newTag) {
         tagIds.add(newTag.id!);
       });
@@ -80,7 +79,6 @@ class DatabaseRepository {
   }
 
   Future<List<ScheduleWrapperBo>?> listScheduleEvent() async {
-    List<ScheduleEventBo>? list = null;
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<ScheduleModel> scheduleList = await databaseHelper
         .listSchedulesWithStatus(
@@ -94,12 +92,43 @@ class DatabaseRepository {
       eventMap[eventModel.id!] = eventModel;
     });
 
+    //query tag mapping
+    List<TagMappingModel>? tagMappingList =
+        await databaseHelper.listTagMappingListWithEventIds(eventIdList);
+    Map<int, List<TagMappingModel>> tagMappingMap = HashMap();
+    List<int> tagIdList = [];
+    tagMappingList?.forEach((tagMapping) {
+      var eventId = tagMapping.memoryId!;
+      List<TagMappingModel>? eventGroupList = tagMappingMap[eventId];
+      if (eventGroupList == null) {
+        eventGroupList = [];
+        tagMappingMap[eventId] = eventGroupList;
+      }
+      eventGroupList.add(tagMapping);
+      tagIdList.add(tagMapping.tagId!);
+    });
+
+    List<TagModel>? tagList = await databaseHelper.listTags(tagIdList);
+    Map<int, TagModel> tagMap = HashMap();
+    tagList?.forEach((tagModel) {
+      tagMap[tagModel.id!] = tagModel;
+    });
+
     List<ScheduleWrapperBo> scheduleWrapperList = [];
     scheduleList.forEach((scheduleModel) {
       ScheduleWrapperBo scheduleWrapperBo = ScheduleWrapperBo(scheduleModel);
       int? eventId = scheduleModel.memoryId;
       MemoryContentModel? eventModel = eventMap[eventId];
       scheduleWrapperBo.eventModel = eventModel;
+      List<TagMappingModel>? tagMappingList = tagMappingMap[eventId];
+      List<TagModel> tagList = [];
+      tagMappingList?.forEach((tagMapping) {
+        TagModel? tagModel = tagMap[tagMapping.tagId!];
+        if (tagModel != null) {
+          tagList.add(tagModel);
+        }
+      });
+      scheduleWrapperBo.tagList = tagList;
       scheduleWrapperList.add(scheduleWrapperBo);
     });
     return scheduleWrapperList;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lapse/business/event/added/common/tag_menu.dart';
-import 'package:lapse/business/event/added/memory/added_service.dart';
+import 'package:lapse/business/event/added/added_service.dart';
 import 'package:lapse/business/event/common/util/common_formats.dart';
 import 'package:lapse/business/event/repository/database/memory_content.dart';
 import 'package:lapse/business/event/repository/database/schedule.dart';
@@ -90,7 +90,7 @@ class _AddedCommonState extends State<AddedCommonPage> {
           actionAt: _reminderTime!.millisecondsSinceEpoch,
           status: ScheduleStatus.todo.index);
       List<ScheduleBo> schedules = [scheduleBo];
-      TenantBo tenantBo = TenantBo(id: -1);
+      TenantBo tenantBo = TenantBo(id: 1);
       EventBo eventBo = EventBo(
           title: event.title,
           content: event.content,

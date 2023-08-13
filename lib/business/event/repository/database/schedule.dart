@@ -32,6 +32,7 @@ class ScheduleBo extends BaseBo {
 class ScheduleWrapperBo {
   MemoryContentModel? eventModel;
   ScheduleModel scheduleModel;
+  List<TagModel>? tagList;
 
   ScheduleWrapperBo(this.scheduleModel);
 }

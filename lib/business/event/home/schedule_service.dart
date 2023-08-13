@@ -53,11 +53,19 @@ class ScheduleService extends Cubit<ScheduleState> {
           CommonFormats.formatDay(localizations!, nowAt, actionAt);
       scheduleEventBo.week = CommonFormats.formatWeek(localizations!, actionAt);
 
-      //
+      //Event
       MemoryContentModel? eventModel = wrapperBo.eventModel;
       scheduleEventBo.eventId = eventModel?.id;
       scheduleEventBo.eventTitle = eventModel?.title;
       scheduleEventBo.eventContent = eventModel?.content;
+
+      //TAG
+      List<TagModel>? tagModelList = wrapperBo.tagList;
+      List<String> tagList = [];
+      tagModelList?.forEach((tagModel) {
+        tagList.add("#${tagModel.tag!}");
+      });
+      scheduleEventBo.tagList = tagList;
     });
 
     //

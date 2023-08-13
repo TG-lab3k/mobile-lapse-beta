@@ -29,58 +29,67 @@ class ScheduleItemWidget extends StatelessWidget {
               decoration: const BoxDecoration(
                   color: Color.fromARGB(0xb2, 0xfa, 0x01, 0x01)),
             ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //header
-                Container(
-                    child: Text(
-                  "${scheduleEventBo.dayLabel}  ${CommonFormats.dHHmmFormat.format(scheduleEventBo.actionAt!)}  ${scheduleEventBo.week}",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: colorPrimary03,
-                  ),
-                )),
-                //title
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    "${scheduleEventBo.eventTitle}",
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: colorPrimary03,
-                    ),
-                  ),
-                ),
-
-                //content
-                if (scheduleEventBo.eventContent?.isNotEmpty == true)
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      "${scheduleEventBo.eventContent}",
-                      maxLines: 1,
-                      style: TextStyle(fontSize: 16, color: colorPrimary04),
-                    ),
-                  ),
-
-                //tag
-                if (scheduleEventBo.tagList?.isNotEmpty == true)
-                  Container(child: buildTags(scheduleEventBo.tagList!)),
-              ],
-            ),
-          ),
           Expanded(
+              flex: 1,
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 15, top: 15, bottom: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //header
+                    Container(
+                        child: Text(
+                      "${scheduleEventBo.dayLabel}  ${CommonFormats.dHHmmFormat.format(scheduleEventBo.actionAt!)}  ${scheduleEventBo.week}",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorPrimary03,
+                      ),
+                    )),
+                    //title
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        "${scheduleEventBo.eventTitle}",
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: colorPrimary03,
+                        ),
+                      ),
+                    ),
+
+                    //content
+                    if (scheduleEventBo.eventContent?.isNotEmpty == true)
+                      Container(
+                        margin: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          "${scheduleEventBo.eventContent}",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(fontSize: 16, color: colorPrimary04),
+                        ),
+                      ),
+
+                    //tag
+                    if (scheduleEventBo.tagList?.isNotEmpty == true)
+                      Container(
+                          margin: const EdgeInsets.only(top: 10),
+                          child: buildTags(scheduleEventBo.tagList!)),
+                  ],
+                ),
+              )),
+          Expanded(
+            flex: 0,
             child: Container(
               alignment: Alignment.topRight,
-              height: 50,
-              width: 50,
-              padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+              height: 40,
+              width: 40,
+              padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
               child: IconButton(
                 icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
                 onPressed: () {
