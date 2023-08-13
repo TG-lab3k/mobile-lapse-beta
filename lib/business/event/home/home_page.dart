@@ -50,7 +50,7 @@ class _EventHomePageState extends State<EventHomePage> {
       appBar: AppBar(
         elevation: 0,
         title: Center(
-          child: Text("Lapse"),
+          child: Text("日程"),
         ),
         actions: <Widget>[
           IconButton(

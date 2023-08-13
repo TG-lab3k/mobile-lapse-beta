@@ -177,7 +177,7 @@ class DatabaseHelper {
         }
       });
 
-      if(newTagList.isEmpty){
+      if (newTagList.isEmpty) {
         return origList;
       }
     }
@@ -318,6 +318,18 @@ class DatabaseHelper {
     var database = await _getWriteDatabase();
     var sql = _SQL.sqlTagsSelect(tagIdList);
     var results = await database.rawQuery(sql, tagIdList);
+    var tagList = mappingTagModel(results);
+    if (tagList.length == 0) {
+      return [];
+    } else {
+      return tagList;
+    }
+  }
+
+  Future<List<TagModel>?> listCustomerTags() async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlTagsSelect([]);
+    var results = await database.rawQuery(sql);
     var tagList = mappingTagModel(results);
     if (tagList.length == 0) {
       return [];
@@ -477,21 +489,36 @@ class _SQL {
     for (int i = 0; i < ids.length; i++) {
       whereBuilder.write(",?");
     }
-    var whereArgs = whereBuilder.toString().substring(1);
-    return _buildSelectSql(
-        TagModel.tableName,
-        [
-          _id,
-          _tag,
-          _num,
-          _tenantId,
-          _serverId,
-          _serverCreateAt,
-          _serverUpdateAt,
-          _createAt,
-          _updateAt
-        ],
-        where: "$_id in($whereArgs)");
+
+    if (whereBuilder.length > 0) {
+      var whereArgs = whereBuilder.toString().substring(1);
+      return _buildSelectSql(
+          TagModel.tableName,
+          [
+            _id,
+            _tag,
+            _num,
+            _tenantId,
+            _serverId,
+            _serverCreateAt,
+            _serverUpdateAt,
+            _createAt,
+            _updateAt
+          ],
+          where: "$_id in($whereArgs)");
+    } else {
+      return _buildSelectSql(TagModel.tableName, [
+        _id,
+        _tag,
+        _num,
+        _tenantId,
+        _serverId,
+        _serverCreateAt,
+        _serverUpdateAt,
+        _createAt,
+        _updateAt
+      ]);
+    }
   }
 
   static String sqlMemoryContentSelect(List<int> ids) {

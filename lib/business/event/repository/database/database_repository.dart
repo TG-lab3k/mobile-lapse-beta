@@ -192,6 +192,25 @@ class DatabaseRepository {
     return scheduleBoList;
   }
 
+  Future<List<TagBo>> listCustomerTags() async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    var tagList = await databaseHelper.listCustomerTags();
+    List<TagBo> tagBoList = [];
+    tagList?.forEach((tagModel) {
+      tagBoList.add(TagBo(
+          tag: tagModel.tag,
+          num: tagModel.num,
+          tenantId: tagModel.tenantId,
+          id: tagModel.id,
+          serverId: tagModel.serverId,
+          serverCreateAt: tagModel.serverCreateAt,
+          serverUpdateAt: tagModel.serverUpdateAt,
+          createAt: tagModel.createAt,
+          updateAt: tagModel.updateAt));
+    });
+    return tagBoList;
+  }
+
   Future<void> deleteContent(int contentId) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     databaseHelper.deleteMemoryContent(contentId);
