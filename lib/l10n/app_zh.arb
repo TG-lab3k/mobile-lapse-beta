@@ -33,5 +33,7 @@
   "commonDateToday":"今天",
   "commonDateAfterOneDay":"明天",
   "commonDateAfterSeveralDay":"天后",
+  "menuHowtous":"怎么使用",
+  "menuCustomerservice":"联系客服",
   "eventContentHint":"请输入标题、内容（可选）、标签（可选）"
 }
