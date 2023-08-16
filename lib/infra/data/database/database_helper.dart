@@ -314,6 +314,19 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<TagMappingModel>?> listTagMappingListWithTagIds(
+      List<int> tagIds) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlTagMappingListWithTagIds(tagIds);
+    var results = await database.rawQuery(sql, tagIds);
+    var tagMappingList = mappingTagMapping(results);
+    if (tagMappingList.length == 0) {
+      return [];
+    } else {
+      return tagMappingList;
+    }
+  }
+
   Future<List<TagModel>?> listTags(List<int> tagIdList) async {
     var database = await _getWriteDatabase();
     var sql = _SQL.sqlTagsSelect(tagIdList);
@@ -347,10 +360,10 @@ class DatabaseHelper {
   }
 
   Future<List<ScheduleModel>> listSchedulesWithStatus(
-      List<int> statusList) async {
+      List<int> eventIdList, List<int> statusList) async {
     var database = await _getWriteDatabase();
-    var sql = _SQL.sqlScheduleWithStatus(statusList);
-    var results = await database.rawQuery(sql, statusList);
+    var sql = _SQL.sqlScheduleWithStatus(eventIdList, statusList);
+    var results = await database.rawQuery(sql, statusList + eventIdList);
     var schedules = mappingScheduleModel(results);
     return schedules;
   }
@@ -567,6 +580,30 @@ class _SQL {
         where: "$_memoryId in($whereArgs)");
   }
 
+  static String sqlTagMappingListWithTagIds(List<int> tagIdList) {
+    var whereBuilder = StringBuffer();
+    for (int i = 0; i < tagIdList.length; i++) {
+      whereBuilder.write(",?");
+    }
+    var whereArgs = whereBuilder.toString().substring(1);
+    return _buildSelectSql(
+        TagMappingModel.tableName,
+        [
+          _id,
+          _tagId,
+          _memoryId,
+          _tenantId,
+          _serverId,
+          _serverCreateAt,
+          _serverUpdateAt,
+          _createAt,
+          _updateAt,
+          _reserve1,
+          _reserve2
+        ],
+        where: "$_tagId in($whereArgs)");
+  }
+
   static String sqlMemoryContentSelectList(List<int> tenantIds) {
     var whereBuilder = StringBuffer();
     for (int i = 0; i < tenantIds.length; i++) {
@@ -615,14 +652,25 @@ class _SQL {
         where: " $_memoryId in ($parameters)");
   }
 
-  static String sqlScheduleWithStatus(List<int> statusList) {
-    var builder = StringBuffer();
+  static String sqlScheduleWithStatus(
+      List<int>? eventIds, List<int> statusList) {
+    var statusBuilder = StringBuffer();
     statusList.forEach((status) {
-      builder.write("?,");
+      statusBuilder.write("?,");
     });
 
-    var length = builder.length;
-    var parameters = builder.toString().substring(0, length - 1);
+    var statusArgs =
+        statusBuilder.toString().substring(0, statusBuilder.length - 1);
+
+    var eventIdArgs = "";
+    if (eventIds != null && eventIds?.isNotEmpty == true) {
+      var eventIdBuilder = StringBuffer();
+      eventIds.forEach((status) {
+        eventIdBuilder.write("?,");
+      });
+      eventIdArgs =
+          eventIdBuilder.toString().substring(0, eventIdBuilder.length - 1);
+    }
     return _buildSelectSql(
         ScheduleModel.tableName,
         [
@@ -638,7 +686,8 @@ class _SQL {
           _createAt,
           _updateAt
         ],
-        where: " $_status in ($parameters)");
+        where:
+            " $_status in ($statusArgs) ${eventIdArgs.trim().isNotEmpty ? " AND $_memoryId in($eventIdArgs)" : ""}");
   }
 
   static String sqlScheduleUpdateStatus() {

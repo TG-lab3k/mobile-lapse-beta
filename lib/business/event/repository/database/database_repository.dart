@@ -78,10 +78,18 @@ class DatabaseRepository {
     }
   }
 
-  Future<List<ScheduleWrapperBo>?> listScheduleEvent() async {
+  Future<List<int>?> listEventIdsWithTagId(List<int> tagIds) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    List<TagMappingModel>? tagMappingList =
+        await databaseHelper.listTagMappingListWithTagIds(tagIds);
+    var eventIdList = tagMappingList?.map((e) => e.memoryId!).toList();
+    return eventIdList;
+  }
+
+  Future<List<ScheduleWrapperBo>?> listScheduleEvent(List<int> eventIds) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<ScheduleModel> scheduleList = await databaseHelper
-        .listSchedulesWithStatus(
+        .listSchedulesWithStatus(eventIds,
             [ScheduleStatus.todo.index, ScheduleStatus.overdue.index]);
 
     List<int> eventIdList = List.from(scheduleList.map((e) => e.memoryId));

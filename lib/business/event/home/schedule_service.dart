@@ -32,9 +32,13 @@ class ScheduleService extends Cubit<ScheduleState> {
 
   ScheduleService({this.listContentCompleted}) : super(ScheduleState());
 
-  listScheduleEvent() async {
-    List<ScheduleWrapperBo>? scheduleWrapperList =
-        await _databaseRepository.listScheduleEvent();
+  listScheduleEvent({int? tagId}) async {
+    List<int>? eventIdList = [];
+    if (tagId != null) {
+      eventIdList = await _databaseRepository.listEventIdsWithTagId([tagId]);
+    }
+    List<ScheduleWrapperBo>? scheduleWrapperList = await _databaseRepository
+        .listScheduleEvent(eventIdList != null ? eventIdList : []);
 
     List<ScheduleEventBo> scheduleEventList = [];
     DateTime nowAt = DateTime.now();

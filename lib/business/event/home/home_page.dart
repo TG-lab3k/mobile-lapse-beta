@@ -47,18 +47,40 @@ class _EventHomePageState extends State<EventHomePage> {
     print("#_MemoryHomePageState# ------ @didUpdateWidget ");
   }
 
+  onTagSelected(int tagId) {
+    print("#onTagSelected# ------ ");
+    _listHome(tagId: tagId);
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     print("#_MemoryHomePageState# ------ @build ");
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(//自定义抽屉图标
+            builder: (BuildContext context) {
+          return InkWell(
+            child: Container(
+                padding: EdgeInsets.all(18),
+                child: ClipOval(
+                  child: Assets.image("ic_appmenu_drawer.png"),
+                )),
+            onTap: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        }),
         elevation: 0,
         title: Center(
-          child: Text("日程"),
+          child: Text("日程", style: TextStyle(fontSize: 16, color: colorPrimary03),),
         ),
         actions: <Widget>[
           IconButton(
-            icon: Assets.image("added.png"),
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              child: Assets.image("ic_appmenu_added.png"),
+            ),
             onPressed: () {
               context.go("/lapse/event/added/common");
             },
@@ -67,7 +89,7 @@ class _EventHomePageState extends State<EventHomePage> {
       ),
       body: _buildBody(context),
       drawer: Drawer(
-        child: _AppMenu(),
+        child: _AppMenu(onTagSelected),
       ),
     );
   }
@@ -86,15 +108,18 @@ class _EventHomePageState extends State<EventHomePage> {
         }));
   }
 
-  void _listHome() async {
+  void _listHome({int? tagId}) async {
     print("#_MemoryHomePageState# -------- @_listHome");
-    _scheduleService.listScheduleEvent();
+    _scheduleService.listScheduleEvent(tagId: tagId);
   }
 }
 
 class _AppMenu extends StatelessWidget {
   HomeMenuService _homeMenuService = HomeMenuService();
   GlobalKey _blocProviderKey = GlobalKey();
+  void Function(int)? tagSelectedCallback;
+
+  _AppMenu(this.tagSelectedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -183,24 +208,32 @@ class _AppMenu extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Clickable(
-                host: Text(
-              "#  ${tagBo.tag}",
-              style: TextStyle(fontSize: 14, color: colorPrimary04),
-            )),
-            Expanded(
-                child: Container(
-              alignment: Alignment.topRight,
-              height: 40,
-              width: 40,
-              padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
-              child: IconButton(
-                icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
-                onPressed: () {
-                  //TODO
-                  print("点击标签");
-                },
+              host: Container(
+                padding: const EdgeInsets.only(right: 10),
+                child: Text(
+                  "#  ${tagBo.tag}",
+                  style: TextStyle(fontSize: 14, color: colorPrimary04),
+                ),
               ),
-            ))
+              listener: (hostWidget) {
+                print("#onPressed# from tag");
+                tagSelectedCallback?.call(tagBo.id!);
+              },
+            ),
+            Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.topRight,
+                  height: 40,
+                  width: 40,
+                  padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
+                  child: IconButton(
+                    icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
+                    onPressed: () {
+                      //TODO
+                    },
+                  ),
+                ))
           ],
         ),
       );
