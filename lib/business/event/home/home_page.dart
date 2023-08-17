@@ -73,7 +73,10 @@ class _EventHomePageState extends State<EventHomePage> {
         }),
         elevation: 0,
         title: Center(
-          child: Text("日程", style: TextStyle(fontSize: 16, color: colorPrimary03),),
+          child: Text(
+            "日程",
+            style: TextStyle(fontSize: 16, color: colorPrimary03),
+          ),
         ),
         actions: <Widget>[
           IconButton(
