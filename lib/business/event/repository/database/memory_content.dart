@@ -34,3 +34,8 @@ class EventBo extends BaseBo {
             createAt: createAt,
             updateAt: updateAt);
 }
+
+enum EventStatus {
+  todo,
+  done
+}

@@ -54,11 +54,13 @@ class MemoryContentModel extends BaseModel {
   String? title;
   String? content;
   int? tenantId;
+  int? status;
 
   MemoryContentModel(
       {int? id,
       this.title,
       this.content,
+      this.status,
       this.tenantId,
       int? serverId,
       int? serverCreateAt,

@@ -9,8 +9,10 @@ class SchedulePage extends StatefulWidget {
   ScheduleState? scheduleState;
   final VoidCallback? onRefreshList;
   final RefreshController refreshController;
+  ScheduleService? scheduleService;
 
-  SchedulePage(this.scheduleState, this.refreshController, this.onRefreshList);
+  SchedulePage(this.scheduleState, this.refreshController, this.onRefreshList,
+      {this.scheduleService});
 
   @override
   State createState() {
@@ -50,7 +52,8 @@ class SchedulePageState extends State<SchedulePage> {
         itemBuilder: (BuildContext itemContext, int index) {
           var eventBo = scheduleList[index];
           return Clickable(
-            host: ScheduleItemWidget(eventBo),
+            host: ScheduleItemWidget(eventBo,
+                scheduleService: widget.scheduleService),
             listener: (_) {
               //TODO
             },

@@ -12,7 +12,9 @@ class ScheduleItemWidget extends StatelessWidget {
   GlobalKey _itemMenuKey = GlobalKey();
   FloatMenu? _itemMenu;
 
-  ScheduleItemWidget(this.scheduleEventBo);
+  ScheduleService? scheduleService;
+
+  ScheduleItemWidget(this.scheduleEventBo, {this.scheduleService});
 
   @override
   Widget build(BuildContext context) {
@@ -138,17 +140,10 @@ class ScheduleItemWidget extends StatelessWidget {
                 child: Text("完成",
                     style: TextStyle(fontSize: 14, color: colorPrimary03)),
               ),
-              listener: (Widget host) {
+              listener: (_) {
                 _itemMenu?.close();
-              }),
-          Clickable(
-              host: Container(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                child: Text("编辑",
-                    style: TextStyle(fontSize: 14, color: colorPrimary03)),
-              ),
-              listener: (Widget host) {
-                _itemMenu?.close();
+                scheduleService?.doneSchedule(
+                    scheduleEventBo.eventId!, scheduleEventBo.scheduleId!);
               }),
           Clickable(
               host: Container(
@@ -156,8 +151,10 @@ class ScheduleItemWidget extends StatelessWidget {
                 child: Text("删除",
                     style: TextStyle(fontSize: 14, color: colorPrimary03)),
               ),
-              listener: (Widget host) {
+              listener: (_) {
                 _itemMenu?.close();
+                scheduleService?.removeSchedule(
+                    scheduleEventBo.eventId!, scheduleEventBo.scheduleId!);
               }),
         ]));
   }

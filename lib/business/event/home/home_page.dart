@@ -107,7 +107,11 @@ class _EventHomePageState extends State<EventHomePage> {
         child: BlocBuilder<ScheduleService, ScheduleState>(
             builder: (blocContext, scheduleState) {
           return SchedulePage(
-              scheduleState, _refreshController, () async => _listHome());
+            scheduleState,
+            _refreshController,
+            () async => _listHome(),
+            scheduleService: _scheduleService,
+          );
         }));
   }
 

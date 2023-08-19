@@ -33,6 +33,10 @@ class ScheduleService extends Cubit<ScheduleState> {
   ScheduleService() : super(ScheduleState());
 
   listScheduleEvent({int? tagId}) async {
+    if (isClosed) {
+      return;
+    }
+
     List<int>? eventIdList = [];
     if (tagId != null) {
       eventIdList = await _databaseRepository.listEventIdsWithTagId([tagId]);
@@ -75,5 +79,15 @@ class ScheduleService extends Cubit<ScheduleState> {
     //
     emit(ScheduleState(scheduleEventList: scheduleEventList));
     listContentCompleted?.call();
+  }
+
+  doneSchedule(int scheduleId, int eventId) async {
+    _databaseRepository.doneSchedule(eventId, scheduleId);
+    listScheduleEvent();
+  }
+
+  removeSchedule(int scheduleId, int eventId) async {
+    _databaseRepository.removeSchedule(eventId, scheduleId);
+    listScheduleEvent();
   }
 }

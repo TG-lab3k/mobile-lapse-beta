@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lapse/business/event/repository/calendar_repository.dart';
 import 'package:lapse/business/event/repository/database/database_repository.dart';
 import 'package:lapse/business/event/repository/database/memory_content.dart';
-import 'package:lapse/business/event/repository/database/tag.dart';
 
 class AddedPageState {
   List<String>? customerTagList;
@@ -20,6 +19,9 @@ class AddedService extends Cubit<AddedPageState> {
   }
 
   getAddedPageInfo() async {
+    if (isClosed) {
+      return;
+    }
     var tagBoList = await _databaseRepository.listCustomerTags();
     List<String> tagStrList = [];
     tagBoList?.forEach((tagBo) {

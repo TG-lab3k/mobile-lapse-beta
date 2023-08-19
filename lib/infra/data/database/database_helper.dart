@@ -25,7 +25,6 @@ const _tenantName = "tenant_name";
 const _birthday = "birthday";
 const _gender = "gender";
 const _icon = "icon";
-const _doneAt = "done_at";
 const _lastRowId = "lastrowid";
 
 const _databaseVersion = 1;
@@ -85,6 +84,7 @@ class DatabaseHelper {
             $_id INTEGER PRIMARY KEY AUTOINCREMENT,
             $_title TEXT,
             $_content TEXT,
+            $_status INTEGER,
             $_tenantId INTEGER,
             $_serverId INTEGER,
             $_serverCreateAt INTEGER,
@@ -118,7 +118,6 @@ class DatabaseHelper {
             $_actionAt INTEGER,
             $_memoryId INTEGER,
             $_status INTEGER,
-            $_doneAt INTEGER,
             $_tenantId INTEGER,
             $_serverId INTEGER,
             $_serverCreateAt INTEGER,
@@ -373,9 +372,8 @@ class DatabaseHelper {
     var database = await _getWriteDatabase();
     var sql = _SQL.sqlScheduleUpdateStatus();
     var nowAtInMills = DateTime.now().millisecondsSinceEpoch;
-    await database.execute(sql,
-        [scheduleModel.status, nowAtInMills, nowAtInMills, scheduleModel.id]);
-    scheduleModel.doneAt = nowAtInMills;
+    await database
+        .execute(sql, [scheduleModel.status, nowAtInMills, scheduleModel.id]);
     scheduleModel.updateAt = nowAtInMills;
     return scheduleModel;
   }
@@ -407,6 +405,7 @@ class DatabaseHelper {
         id: row[_id],
         title: row[_title],
         content: row[_content],
+        status: row[_status],
         tenantId: row[_tenantId],
         serverId: row[_serverId],
         serverCreateAt: row[_serverCreateAt],
@@ -444,7 +443,6 @@ class DatabaseHelper {
         actionAt: row[_actionAt],
         memoryId: row[_memoryId],
         status: row[_status],
-        doneAt: row[_doneAt],
         tenantId: row[_tenantId],
         serverId: row[_serverId],
         serverCreateAt: row[_serverCreateAt],
@@ -480,6 +478,27 @@ class DatabaseHelper {
     var database = await _getWriteDatabase();
     var sql = "DELETE FROM ${ScheduleModel.tableName} WHERE $_memoryId=?";
     var count = await database.rawDelete(sql, [contentId]);
+    return count;
+  }
+
+  Future<int> deleteScheduleWithId(int scheduleId) async {
+    var database = await _getWriteDatabase();
+    var sql = "DELETE FROM ${ScheduleModel.tableName} WHERE $_id=?";
+    var count = await database.rawDelete(sql, [scheduleId]);
+    return count;
+  }
+
+  Future<void> updateEventStatus(int eventId, int status) async {
+    var database = await _getWriteDatabase();
+    var sql = _SQL.sqlEventUpdateStatus();
+    var nowAtInMills = DateTime.now().millisecondsSinceEpoch;
+    await database.execute(sql, [status, nowAtInMills, eventId]);
+  }
+
+  Future<int> deleteEventWithId(int eventId) async {
+    var database = await _getWriteDatabase();
+    var sql = "DELETE FROM ${MemoryContentModel.tableName} WHERE $_id=?";
+    var count = await database.rawDelete(sql, [eventId]);
     return count;
   }
 }
@@ -539,13 +558,18 @@ class _SQL {
     for (int i = 0; i < ids.length; i++) {
       whereBuilder.write(",?");
     }
-    var whereArgs = whereBuilder.toString().substring(1);
+    var whereArgs = "";
+    if (whereBuilder.length > 0) {
+      whereArgs = whereBuilder.toString().substring(1);
+    }
+
     return _buildSelectSql(
         MemoryContentModel.tableName,
         [
           _id,
           _title,
           _content,
+          _status,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -553,7 +577,7 @@ class _SQL {
           _createAt,
           _updateAt
         ],
-        where: "$_id in($whereArgs)");
+        where: whereArgs.length > 0 ? "$_id in($whereArgs)" : "");
   }
 
   static String sqlTagMappingListWithEventIds(List<int> eventIdList) {
@@ -561,7 +585,11 @@ class _SQL {
     for (int i = 0; i < eventIdList.length; i++) {
       whereBuilder.write(",?");
     }
-    var whereArgs = whereBuilder.toString().substring(1);
+
+    var whereArgs = "";
+    if (whereBuilder.length > 0) {
+      whereArgs = whereBuilder.toString().substring(1);
+    }
     return _buildSelectSql(
         TagMappingModel.tableName,
         [
@@ -577,7 +605,7 @@ class _SQL {
           _reserve1,
           _reserve2
         ],
-        where: "$_memoryId in($whereArgs)");
+        where: whereArgs.length > 0 ? "$_memoryId in($whereArgs)" : "");
   }
 
   static String sqlTagMappingListWithTagIds(List<int> tagIdList) {
@@ -616,6 +644,7 @@ class _SQL {
           _id,
           _title,
           _content,
+          _status,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -641,7 +670,6 @@ class _SQL {
           _actionAt,
           _memoryId,
           _status,
-          _doneAt,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -678,7 +706,6 @@ class _SQL {
           _actionAt,
           _memoryId,
           _status,
-          _doneAt,
           _tenantId,
           _serverId,
           _serverCreateAt,
@@ -691,8 +718,12 @@ class _SQL {
   }
 
   static String sqlScheduleUpdateStatus() {
-    return _buildUpdateSql(
-        ScheduleModel.tableName, [_status, _doneAt, _updateAt],
+    return _buildUpdateSql(ScheduleModel.tableName, [_status, _updateAt],
+        where: "$_id=?");
+  }
+
+  static String sqlEventUpdateStatus() {
+    return _buildUpdateSql(MemoryContentModel.tableName, [_status, _updateAt],
         where: "$_id=?");
   }
 

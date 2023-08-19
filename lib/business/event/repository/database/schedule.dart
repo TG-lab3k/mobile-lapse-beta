@@ -40,5 +40,4 @@ class ScheduleWrapperBo {
 enum ScheduleStatus {
   todo,
   done,
-  overdue;
 }

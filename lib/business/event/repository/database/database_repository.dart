@@ -89,8 +89,7 @@ class DatabaseRepository {
   Future<List<ScheduleWrapperBo>?> listScheduleEvent(List<int> eventIds) async {
     final DatabaseHelper databaseHelper = DatabaseHelper();
     List<ScheduleModel> scheduleList = await databaseHelper
-        .listSchedulesWithStatus(eventIds,
-            [ScheduleStatus.todo.index, ScheduleStatus.overdue.index]);
+        .listSchedulesWithStatus(eventIds, [ScheduleStatus.todo.index]);
 
     List<int> eventIdList = List.from(scheduleList.map((e) => e.memoryId));
     List<MemoryContentModel>? eventList =
@@ -228,5 +227,28 @@ class DatabaseRepository {
     List<ScheduleBo> scheduleBoList = [];
 
     return scheduleBoList;
+  }
+
+  Future<void> doneSchedule(int eventId, int scheduleId) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    await databaseHelper.updateScheduleStatus(
+        ScheduleModel(id: scheduleId, status: ScheduleStatus.done.index));
+
+    List<ScheduleModel> scheduleList = await databaseHelper
+        .listSchedulesWithStatus([eventId], [ScheduleStatus.done.index]);
+    if (scheduleList.isEmpty) {
+      await databaseHelper.updateEventStatus(eventId, EventStatus.done.index);
+    }
+  }
+
+  Future<void> removeSchedule(int eventId, int scheduleId) async {
+    final DatabaseHelper databaseHelper = DatabaseHelper();
+    await databaseHelper.deleteScheduleWithId(scheduleId);
+
+    List<ScheduleModel> scheduleList = await databaseHelper
+        .listSchedulesWithStatus([eventId], [ScheduleStatus.done.index]);
+    if (scheduleList.isEmpty) {
+      await databaseHelper.deleteEventWithId(eventId);
+    }
   }
 }

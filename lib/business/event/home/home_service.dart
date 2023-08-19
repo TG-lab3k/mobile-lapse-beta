@@ -56,6 +56,9 @@ class HomeMenuService extends Cubit<HomeMenuState> {
   HomeMenuService() : super(HomeMenuState());
 
   getHomeMenuInfo() async {
+    if (this.isClosed) {
+      return;
+    }
     var tagBoList = await _databaseRepository.listCustomerTags();
     HomeMenuState homeMenuState = HomeMenuState();
     homeMenuState.customerTagList = tagBoList;
