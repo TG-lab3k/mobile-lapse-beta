@@ -3,10 +3,14 @@ import 'package:lapse/business/event/common/util/common_formats.dart';
 import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/infra/asset/assets.dart';
 import 'package:lapse/theme/colors.dart';
+import 'package:lapse/widget/clickable.dart';
+import 'package:lapse/widget/float_menu.dart';
 import 'package:simple_tags/simple_tags.dart';
 
 class ScheduleItemWidget extends StatelessWidget {
   ScheduleEventBo scheduleEventBo;
+  GlobalKey _itemMenuKey = GlobalKey();
+  FloatMenu? _itemMenu;
 
   ScheduleItemWidget(this.scheduleEventBo);
 
@@ -91,11 +95,9 @@ class ScheduleItemWidget extends StatelessWidget {
               width: 40,
               padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
               child: IconButton(
+                key: _itemMenuKey,
                 icon: Assets.image("ic_menu_ellipsis_horizontal.png"),
-                onPressed: () {
-                  //TODO
-                  print("点击Item菜单");
-                },
+                onPressed: () => openItemMenu(context, scheduleEventBo),
               ),
             ),
           ),
@@ -119,5 +121,44 @@ class ScheduleItemWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void openItemMenu(
+      BuildContext context, ScheduleEventBo scheduleEventBo) async {
+    _itemMenu = FloatMenu.open(
+        context,
+        _itemMenuKey,
+        80,
+        offsetX: 60,
+        offsetY: 20,
+        ListView(padding: EdgeInsets.zero, shrinkWrap: true, children: <Widget>[
+          Clickable(
+              host: Container(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Text("完成",
+                    style: TextStyle(fontSize: 14, color: colorPrimary03)),
+              ),
+              listener: (Widget host) {
+                _itemMenu?.close();
+              }),
+          Clickable(
+              host: Container(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Text("编辑",
+                    style: TextStyle(fontSize: 14, color: colorPrimary03)),
+              ),
+              listener: (Widget host) {
+                _itemMenu?.close();
+              }),
+          Clickable(
+              host: Container(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Text("删除",
+                    style: TextStyle(fontSize: 14, color: colorPrimary03)),
+              ),
+              listener: (Widget host) {
+                _itemMenu?.close();
+              }),
+        ]));
   }
 }
