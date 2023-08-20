@@ -26,7 +26,7 @@ class CalendarPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
-        channel = MethodChannel(binding.binaryMessenger, "plugin.calendarAndAlarm")
+        channel = MethodChannel(binding.binaryMessenger, "plugin.calendarAndAlarm.oldVersion")
         channel?.setMethodCallHandler(this)
     }
 

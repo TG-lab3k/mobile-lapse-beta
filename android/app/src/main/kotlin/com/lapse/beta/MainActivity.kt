@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.lapse.beta.plugin.CalendarPlugin
+import com.lapse.beta.plugin.CalendarExactPlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
@@ -38,7 +38,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         try {
-            flutterEngine.plugins.add(CalendarPlugin())
+            flutterEngine.plugins.add(CalendarExactPlugin())
         } catch (e: Exception) {
             Log.e(
                 TAG,
