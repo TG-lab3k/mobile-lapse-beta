@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.lapse.beta">
 
     <application
@@ -43,7 +44,11 @@
         <receiver
             android:name="com.lapse.beta.AlarmReceiver"
             android:enabled="false"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="lapse.intent.action.TIMER" />
+            </intent-filter>
+        </receiver>
     </application>
     <queries>
         <intent>
@@ -52,13 +57,15 @@
         </intent>
     </queries>
 
+    <uses-permission
+        android:name="android.permission.SET_TIME_ZONE"
+        tools:ignore="ProtectedPermissions" />
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <uses-permission
-        android:name="android.permission.SCHEDULE_EXACT_ALARM"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 </manifest>

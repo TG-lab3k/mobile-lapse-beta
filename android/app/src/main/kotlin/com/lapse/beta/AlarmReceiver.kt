@@ -26,7 +26,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra("title")
         val description = intent.getStringExtra("description")
         buildNotification(context, title, description)
-        Log.d(TAG, "#onReceive# title: ${title}")
+        Log.d(TAG, "#onReceive# title: $title")
     }
 
     private fun buildNotification(context: Context, title: String?, description: String?) {
