@@ -82,6 +82,9 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         val alarmManager: AlarmManager =
             cxt!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(cxt, AlarmReceiver::class.java)
+        intent.action = "com.lapse.beta.intent.action.ACTION_ALARM"
+        intent.setPackage(cxt.packageName)
+        intent.addFlags(Intent.FLAG_RECEIVER_VISIBLE_TO_INSTANT_APPS)
         intent.putExtra("title", title)
         intent.putExtra("description", description)
 
@@ -94,11 +97,8 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         val pendingIntent = PendingIntent.getBroadcast(
             cxt, requestCode, intent, PendingIntent.FLAG_IMMUTABLE
         )
-        AlarmManagerCompat.setExact(
-            alarmManager,
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            pendingIntent
+        AlarmManagerCompat.setExactAndAllowWhileIdle(
+            alarmManager, AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
         )
 
         val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ")

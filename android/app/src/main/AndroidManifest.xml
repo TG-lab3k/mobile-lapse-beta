@@ -3,9 +3,9 @@
     package="com.lapse.beta">
 
     <application
-        android:name="${applicationName}"
+        android:name="com.lapse.beta.LapseApp"
         android:icon="@mipmap/ic_launcher"
-        android:label="Lapse">
+        android:label="@string/appName">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -31,8 +31,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        
-        <receiver android:name="com.lapse.beta.plugin.AlarmReceiver" />
+
+        <receiver
+            android:name="com.lapse.beta.plugin.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
     </application>
     <queries>
         <intent>
