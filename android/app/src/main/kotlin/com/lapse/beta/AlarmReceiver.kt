@@ -36,6 +36,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         builder.setTicker(title)
         builder.setContentText(description)
+        builder.setContentTitle(title)
         builder.setSmallIcon(R.mipmap.ic_launcher)
         builder.setDefaults(Notification.DEFAULT_VIBRATE)
 
