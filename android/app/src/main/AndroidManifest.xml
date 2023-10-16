@@ -30,10 +30,21 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
         <receiver
             android:name="com.lapse.beta.AlarmReceiver"
             android:enabled="true"
             android:exported="true" />
+
+        <receiver
+            android:name="com.lapse.beta.AlarmResetReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
     <queries>
         <intent>

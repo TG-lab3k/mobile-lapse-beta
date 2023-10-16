@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
-import androidx.core.app.AlarmManagerCompat
 import com.lapse.beta.AlarmReceiver
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -25,6 +24,7 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var channel: MethodChannel? = null
     private var context: Context? = null
     private val simpleDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+    //private val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ")
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -83,13 +83,6 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     ): Boolean {
         var cxt: Context? = this.context ?: return false
         val requestCode = SystemClock.elapsedRealtime().toInt()
-        Log.d(
-            TAG, "#createCalendarEvent# requestCode:$requestCode, title: ${title}, startAt: ${
-                simpleDateFormat.format(
-                    startAt
-                )
-            }"
-        )
         val alarmManager: AlarmManager =
             cxt!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(cxt, AlarmReceiver::class.java)
@@ -100,17 +93,20 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         calendar.timeInMillis = startAt
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
+        val startTime = calendar.timeInMillis
+        Log.d(
+            TAG, "#createCalendarEvent# requestCode:$requestCode, title: ${title}, startAt: ${
+                simpleDateFormat.format(
+                    startTime
+                )
+            }"
+        )
 
+        //FLAG_NO_CREATE
         val pendingIntent = PendingIntent.getBroadcast(
             cxt, requestCode, intent, PendingIntent.FLAG_IMMUTABLE
         )
-        AlarmManagerCompat.setExactAndAllowWhileIdle(
-            alarmManager, AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
-        )
-
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ")
-        val date = Date(calendar.timeInMillis)
-        Log.d(TAG, "#createCalendarEvent# setExact END, triggerAt: ${format.format(date)}")
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, startTime, pendingIntent)
         return true
     }
 }

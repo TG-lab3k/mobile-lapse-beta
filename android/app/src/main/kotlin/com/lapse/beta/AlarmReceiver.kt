@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.lapse.beta.plugin.TAG
@@ -51,7 +52,9 @@ class AlarmReceiver : BroadcastReceiver() {
             }
         }
         try {
-            manager.notify(1, builder.build())
+            val id = SystemClock.elapsedRealtime().toInt()
+            manager.notify(id, builder.build())
+            Log.d(TAG, "#buildNotification# notify: $id, $title")
         } catch (ignore: Throwable) {
             Log.e(TAG, "", ignore)
         }
