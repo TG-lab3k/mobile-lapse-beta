@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.lapse.beta.plugin.TAG
 
 
@@ -45,7 +46,7 @@ class AlarmReceiver : BroadcastReceiver() {
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             var channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, "Channel", NotificationManager.IMPORTANCE_DEFAULT
+                NOTIFICATION_CHANNEL_ID, "AlarmNotification", NotificationManager.IMPORTANCE_DEFAULT
             )
             if (manager != null) {
                 manager.createNotificationChannel(channel)
@@ -57,6 +58,36 @@ class AlarmReceiver : BroadcastReceiver() {
             Log.d(TAG, "#buildNotification# notify: $id, $title")
         } catch (ignore: Throwable) {
             Log.e(TAG, "", ignore)
+        }
+    }
+
+    private fun createNotification(context: Context, title: String, description: String?) {
+        Log.d(TAG, "#createNotification# ________  $title")
+        createNotificationChannel(context)
+        var builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher).setContentTitle(title).setContentText(description)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+        val notificationId = title.hashCode()
+        with(NotificationManagerCompat.from(context)) {
+            // notificationId is a unique int for each notification that you must define
+            notify(notificationId, builder.build())
+        }
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "AlarmNotification"
+            val descriptionText = "Alarm-Notification-test"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

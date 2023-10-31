@@ -52,7 +52,7 @@ class _AddedCommonState extends State<AddedCommonPage> {
       TextEditingController();
   DateTime? _reminderTime = DateTime.fromMillisecondsSinceEpoch(
       DateTime.now().millisecondsSinceEpoch +
-          Duration(minutes: 30).inMilliseconds);
+          Duration(minutes: 10).inMilliseconds);
 
   @override
   void initState() {
@@ -217,59 +217,6 @@ class _AddedCommonState extends State<AddedCommonPage> {
                       ],
                     ),
                   )),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 10, right: 10),
-                      child: Column(children: [
-                        Container(
-                            alignment: AlignmentDirectional.centerStart,
-                            padding: const EdgeInsets.only(left: 6),
-                            child: Text("是否重复: ")),
-                        Row(
-                          children: [
-                            Radio(
-                              activeColor:
-                                  Color.fromARGB(0xff, 0xff, 0x33, 0x33),
-                              value: 1,
-                              groupValue: widget.repeat,
-                              onChanged: (value) {
-                                setState(() {
-                                  widget.repeat = value;
-                                });
-                              },
-                            ),
-                            Text("不重复"),
-                            SizedBox(width: 10),
-                            Radio(
-                              value: 2,
-                              groupValue: widget.repeat,
-                              onChanged: (value) {
-                                setState(() {
-                                  widget.repeat = value;
-                                });
-                              },
-                              activeColor:
-                                  Color.fromARGB(0xff, 0xff, 0x33, 0x33),
-                            ),
-                            Text("每周重复"),
-                            SizedBox(width: 10),
-                            Radio(
-                              value: 3,
-                              groupValue: widget.repeat,
-                              onChanged: (value) {
-                                setState(() {
-                                  widget.repeat = value;
-                                });
-                              },
-                              activeColor:
-                                  Color.fromARGB(0xff, 0xff, 0x33, 0x33),
-                            ),
-                            Text("每月重复")
-                          ],
-                        )
-                      ]),
-                    ),
-                  ),
                   SliverToBoxAdapter(
                       child: Container(
                     margin: const EdgeInsets.only(

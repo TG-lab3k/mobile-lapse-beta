@@ -86,6 +86,7 @@ class CalendarExactPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         val alarmManager: AlarmManager =
             cxt!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(cxt, AlarmReceiver::class.java)
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
         intent.putExtra("lapseEvent_title", title)
         intent.putExtra("lapseEvent_description", description)
 
