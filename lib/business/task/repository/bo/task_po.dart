@@ -1,4 +1,4 @@
-import 'common.dart';
+import 'common_po.dart';
 
 class EventPo extends BasePo {
   int? actionAt;
