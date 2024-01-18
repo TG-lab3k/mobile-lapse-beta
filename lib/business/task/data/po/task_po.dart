@@ -47,7 +47,7 @@ class TaskPo extends BasePo {
   String? title;
   String? content;
   int? repeatType;
-  int? createId;
+  int? creatorId;
   int? assignId;
   int? childId;
 
@@ -58,7 +58,7 @@ class TaskPo extends BasePo {
       this.title,
       this.content,
       this.repeatType,
-      this.createId,
+      this.creatorId,
       this.assignId,
       this.childId})
       : super(id: id, createAt: createAt, updateAt: updateAt);
