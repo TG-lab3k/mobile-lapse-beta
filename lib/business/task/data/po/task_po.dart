@@ -2,7 +2,7 @@ import 'common_po.dart';
 
 class EventPo extends BasePo {
   String? actionAt;
-  int? order;
+  int? eventOrder;
   int? taskId;
   int? status;
   String? doneAt;
@@ -12,7 +12,7 @@ class EventPo extends BasePo {
       String? createAt,
       String? updateAt,
       this.actionAt,
-      this.order,
+      this.eventOrder,
       this.taskId,
       this.status,
       this.doneAt})
@@ -47,6 +47,7 @@ class TaskPo extends BasePo {
   String? title;
   String? content;
   int? repeatType;
+  int? status;
   int? creatorId;
   int? assignId;
   int? childId;
@@ -58,6 +59,7 @@ class TaskPo extends BasePo {
       this.title,
       this.content,
       this.repeatType,
+      this.status,
       this.creatorId,
       this.assignId,
       this.childId})
