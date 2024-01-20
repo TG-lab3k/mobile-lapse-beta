@@ -38,7 +38,6 @@ class DatabaseHelper {
   // Tag table columns
   static const String _columnTag = 'tag';
   static const String _columnParentIdTag = 'parent_id';
-  static const String _columnTaskIdTag = 'task_id';
 
   // TagMapping table columns
   static const String _columnTagIdMapping = 'tag_id';
@@ -119,7 +118,7 @@ class DatabaseHelper {
         $_columnUpdateAt TEXT,
         $_columnTag TEXT,
         $_columnParentIdTag INTEGER,
-        $_columnTaskIdTag INTEGER
+        $_columnChildId INTEGER
       )
     ''');
   }
@@ -377,7 +376,7 @@ class DatabaseHelper {
       updateAt: map[_columnUpdateAt] as String?,
       tag: map[_columnTag] as String?,
       parentId: map[_columnParentIdTag] as int?,
-      taskId: map[_columnTaskIdTag] as int?,
+      childId: map[_columnChildId] as int?,
     );
   }
 
@@ -448,39 +447,73 @@ class DatabaseHelper {
     basePo.updateAt = nowInString;
   }
 
-  Future<void> insertEvent(EventPo event) async {
+  Future<int> insertEvent(Transaction transaction, EventPo event) async {
     _addCreateTime(event);
-    await _database?.insert(_tableEvent, _eventToMap(event));
+    return await transaction.insert(_tableEvent, _eventToMap(event));
   }
 
-  Future<void> insertTag(TagPo tag) async {
+  Future<List<int>> insertEventList(
+      Transaction transaction, List<EventPo> eventList) async {
+    Batch batch = transaction.batch();
+    eventList.forEach((eventPo) {
+      _addCreateTime(eventPo);
+      batch.insert(_tableEvent, _eventToMap(eventPo));
+    });
+    return batch.commit().then((value) => value.map((e) => e as int).toList());
+  }
+
+  Future<int> insertTag(Transaction transaction, TagPo tag) async {
     _addCreateTime(tag);
-    await _database?.insert(_tableTag, _tagToMap(tag));
+    return await transaction.insert(_tableTag, _tagToMap(tag));
   }
 
-  Future<void> insertTagMapping(TagMappingPo tagMapping) async {
+  Future<List<int>> insertTagList(
+      Transaction transaction, List<TagPo> tagList) async {
+    Batch batch = transaction.batch();
+    tagList.forEach((tag) {
+      _addCreateTime(tag);
+      batch.insert(_tableTag, _tagToMap(tag));
+    });
+    return batch.commit().then((value) => value.map((e) => e as int).toList());
+  }
+
+  Future<int> insertTagMapping(
+      Transaction transaction, TagMappingPo tagMapping) async {
     _addCreateTime(tagMapping);
-    await _database?.insert(_tableTagMapping, _tagMappingToMap(tagMapping));
+    return await transaction.insert(
+        _tableTagMapping, _tagMappingToMap(tagMapping));
   }
 
-  Future<void> insertTask(TaskPo task) async {
+  Future<List<int>> insertTagMappingList(
+      Transaction transaction, List<TagMappingPo> tagMappingList) async {
+    Batch batch = transaction.batch();
+    tagMappingList.forEach((tagMapping) {
+      _addCreateTime(tagMapping);
+      batch.insert(_tableTagMapping, _tagMappingToMap(tagMapping));
+    });
+    return batch.commit().then((value) => value.map((e) => e as int).toList());
+  }
+
+  Future<int> insertTask(Transaction transaction, TaskPo task) async {
     _addCreateTime(task);
-    await _database?.insert(_tableTask, _taskToMap(task));
+    return await transaction.insert(_tableTask, _taskToMap(task));
   }
 
-  Future<void> insertComment(CommentPo comment) async {
+  Future<int> insertComment(Transaction transaction, CommentPo comment) async {
     _addCreateTime(comment);
-    await _database?.insert(_tableComment, _commentToMap(comment));
+    return await transaction.insert(_tableComment, _commentToMap(comment));
   }
 
-  Future<void> insertSupervisor(SupervisorPo supervisor) async {
+  Future<int> insertSupervisor(
+      Transaction transaction, SupervisorPo supervisor) async {
     _addCreateTime(supervisor);
-    await _database?.insert(_tableSupervisor, _supervisorToMap(supervisor));
+    return await transaction.insert(
+        _tableSupervisor, _supervisorToMap(supervisor));
   }
 
-  Future<void> insertChild(ChildPo child) async {
+  Future<int> insertChild(Transaction transaction, ChildPo child) async {
     _addCreateTime(child);
-    await _database?.insert(_tableChild, _childToMap(child));
+    return await transaction.insert(_tableChild, _childToMap(child));
   }
 
   Map<String, dynamic> _eventToMap(EventPo event) {
@@ -501,7 +534,7 @@ class DatabaseHelper {
       _columnUpdateAt: tag.updateAt,
       _columnTag: tag.tag,
       _columnParentIdTag: tag.parentId,
-      _columnTaskIdTag: tag.taskId,
+      _columnChildId: tag.childId,
     };
   }
 
@@ -558,5 +591,20 @@ class DatabaseHelper {
       _columnBirthday: child.birthday,
       _columnGender: child.gender,
     };
+  }
+
+  Future<TagPo?> findTagWithParent(String tagName, int? parentId) async {
+    Database db = await this.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTag,
+      where: '$_columnParentIdTag = ? AND $_columnTag = ?',
+      whereArgs: [parentId, tagName],
+    );
+
+    if (maps.isNotEmpty) {
+      return _mapToTagPo(maps[0]);
+    } else {
+      return null;
+    }
   }
 }

@@ -22,7 +22,7 @@ class EventPo extends BasePo {
 class TagPo extends BasePo {
   String? tag;
   int? parentId;
-  int? taskId;
+  int? childId;
 
   TagPo(
       {int? id,
@@ -30,7 +30,7 @@ class TagPo extends BasePo {
       String? updateAt,
       this.tag,
       this.parentId,
-      this.taskId})
+      this.childId})
       : super(id: id, createAt: createAt, updateAt: updateAt);
 }
 

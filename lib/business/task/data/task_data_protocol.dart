@@ -1,13 +1,15 @@
 import 'po/task_po.dart';
 
 class CreateUpdateTaskVo {
-  TaskPo? task;
+  TaskPo task;
   List<EventPo>? eventList;
   List<TagPo>? tagList;
+
+  CreateUpdateTaskVo(this.task, {this.eventList, this.tagList});
 }
 
 abstract class TaskDataProtocol {
-  createTask(CreateUpdateTaskVo createTaskVo);
+  Future<void> createTask(CreateUpdateTaskVo createTaskVo);
 
   updateTask(CreateUpdateTaskVo updateTaskVo);
 
