@@ -1,5 +1,10 @@
 import 'common_po.dart';
 
+enum EventStatus {
+  todo,
+  done,
+}
+
 class EventPo extends BasePo {
   String? actionAt;
   int? eventOrder;

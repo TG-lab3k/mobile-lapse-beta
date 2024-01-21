@@ -11,7 +11,7 @@ class CreateUpdateTaskVo {
 class QueriedEventOrTaskVo {
   EventPo eventPo;
   TaskPo taskPo;
-  List<TagPo>? tagList;
+  List<List<TagPo>>? tagList;
 
   QueriedEventOrTaskVo(this.eventPo, this.taskPo, {this.tagList});
 }
@@ -33,7 +33,7 @@ abstract class TaskDataProtocol {
 
   Future<void> updateEvent(EventPo eventPo);
 
-  Future<List<EventPo>> getTodayEventList();
+  Future<List<QueriedEventOrTaskVo>> getEventsToday();
 
   Future<List<EventPo>> getExpiredEventList();
 
