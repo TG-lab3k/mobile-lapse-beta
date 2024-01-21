@@ -35,9 +35,9 @@ abstract class TaskDataProtocol {
 
   Future<List<QueriedEventOrTaskVo>> getEventsToday();
 
-  Future<List<EventPo>> getExpiredEventList();
+  Future<List<QueriedEventOrTaskVo>> getEventsExpired();
 
-  Future<List<EventPo>> getFutureEventList();
+  Future<List<QueriedEventOrTaskVo>> getEventsFuture();
 
   Future<List<EventPo>> getTaskEventList(int taskId);
 

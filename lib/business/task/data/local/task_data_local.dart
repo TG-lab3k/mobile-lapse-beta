@@ -115,20 +115,8 @@ class TaskLocalDatabase extends TaskDataProtocol {
   }
 
   @override
-  Future<List<EventPo>> getExpiredEventList() async {
-    // TODO: implement getExpiredEventList
-    throw UnimplementedError();
-  }
-
-  @override
   Future<List<TaskPo>> getFinishedTaskList() async {
     // TODO: implement getFinishedTaskList
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<EventPo>> getFutureEventList() async {
-    // TODO: implement getFutureEventList
     throw UnimplementedError();
   }
 
@@ -157,9 +145,28 @@ class TaskLocalDatabase extends TaskDataProtocol {
   }
 
   @override
+  Future<List<QueriedEventOrTaskVo>> getEventsFuture() async {
+    final helper = DatabaseHelper();
+    var eventList = await helper.getEventsAfterToday(EventStatus.todo.index);
+    return await _retrieveEventList(helper, eventList);
+  }
+
+  @override
+  Future<List<QueriedEventOrTaskVo>> getEventsExpired() async {
+    final helper = DatabaseHelper();
+    var eventList = await helper.getEventsBeforeToday(EventStatus.todo.index);
+    return await _retrieveEventList(helper, eventList);
+  }
+
+  @override
   Future<List<QueriedEventOrTaskVo>> getEventsToday() async {
     final helper = DatabaseHelper();
     var eventList = await helper.getEventsToday(EventStatus.todo.index);
+    return await _retrieveEventList(helper, eventList);
+  }
+
+  Future<List<QueriedEventOrTaskVo>> _retrieveEventList(
+      DatabaseHelper helper, List<EventPo> eventList) async {
     if (eventList.isEmpty) {
       return [];
     }
