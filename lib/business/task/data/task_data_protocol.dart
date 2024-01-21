@@ -8,34 +8,43 @@ class CreateUpdateTaskVo {
   CreateUpdateTaskVo(this.task, {this.eventList, this.tagList});
 }
 
+class QueriedEventOrTaskVo {
+  EventPo eventPo;
+  TaskPo taskPo;
+  List<TagPo>? tagList;
+
+  QueriedEventOrTaskVo(this.eventPo, this.taskPo, {this.tagList});
+}
+
 abstract class TaskDataProtocol {
-  Future<void> createTask(CreateUpdateTaskVo createTaskVo);
+  Future<TaskPo> createTask(CreateUpdateTaskVo createTaskVo);
 
-  updateTask(CreateUpdateTaskVo updateTaskVo);
+  Future<void> updateTask(CreateUpdateTaskVo updateTaskVo);
 
-  TaskPo getTask(int taskId);
+  Future<TaskPo> getTask(int taskId);
 
-  List<TaskPo> getUnfinishedTaskList();
+  Future<List<TaskPo>> getUnfinishedTaskList();
 
-  List<TaskPo> getFinishedTaskList();
+  Future<List<TaskPo>> getFinishedTaskList();
 
-  List<TagPo> getTaskTagList(int taskId);
+  Future<List<TagPo>> getTaskTagList(int taskId);
 
-  List<TagPo> getAllTaskTagList(List<int> taskIdList);
+  Future<List<TagPo>> getAllTaskTagList(List<int> taskIdList);
 
-  updateEvent(EventPo eventPo);
+  Future<void> updateEvent(EventPo eventPo);
 
-  List<EventPo> getTodayEventList();
+  Future<List<EventPo>> getTodayEventList();
 
-  List<EventPo> getExpiredEventList();
+  Future<List<EventPo>> getExpiredEventList();
 
-  List<EventPo> getFutureEventList();
+  Future<List<EventPo>> getFutureEventList();
 
-  List<EventPo> getTaskEventList(int taskId);
+  Future<List<EventPo>> getTaskEventList(int taskId);
 
-  List<EventPo> getAllTaskRecentUnfinishedEventList(List<int> taskIdList);
+  Future<List<EventPo>> getAllTaskRecentUnfinishedEventList(
+      List<int> taskIdList);
 
-  createComment(CommentPo commentPo);
+  Future<CommentPo> createComment(CommentPo commentPo);
 
-  List<CommentPo> getTaskCommentList(int taskId);
+  Future<List<CommentPo>> getTaskCommentList(int taskId);
 }

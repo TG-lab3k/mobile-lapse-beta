@@ -69,6 +69,7 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss.SSS');
+  DateFormat _dayFormat = DateFormat('yyyy-MM-dd');
 
   Future<Database> get database async {
     if (_database != null) {
@@ -208,6 +209,57 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<EventPo>> getEventsToday(int status) async {
+    final Database db = await database;
+    String today = _dayFormat.format(DateTime.now());
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableEvent,
+      where: '$_columnActionAt LIKE ? AND $_columnStatus = ?',
+      whereArgs: ['$today%', status],
+      orderBy: '$_columnActionAt DESC',
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToEventPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<EventPo>> getEventsBeforeToday(int status) async {
+    final Database db = await database;
+    String today = _dayFormat.format(DateTime.now());
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableEvent,
+      where: '$_columnActionAt < ? AND $_columnStatus = ?',
+      whereArgs: [today, status],
+      orderBy: '$_columnActionAt DESC',
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToEventPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<EventPo>> getEventsAfterToday(int status) async {
+    final Database db = await database;
+    String today = _dayFormat.format(DateTime.now());
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableEvent,
+      where: '$_columnActionAt > ? AND $_columnStatus = ?',
+      whereArgs: [today, status],
+      orderBy: '$_columnActionAt DESC',
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToEventPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
   Future<List<EventPo>> getAllEvents() async {
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_tableEvent);
@@ -230,6 +282,26 @@ class DatabaseHelper {
       return _mapToTagPo(maps[0]);
     } else {
       return null;
+    }
+  }
+
+  Future<List<TagPo>> getTagsByIds(List<int> ids) async {
+    if (ids.isEmpty) {
+      return [];
+    }
+
+    final Database db = await database;
+    String questionMarks = List.generate(ids.length, (index) => '?').join(', ');
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTag,
+      where: '$_columnId IN ($questionMarks)',
+      whereArgs: [ids],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToTagPo(e)).toList();
+    } else {
+      return [];
     }
   }
 
@@ -256,6 +328,25 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<TagMappingPo>> getTagMappingsByTaskIds(List<int> taskIds) async {
+    if (taskIds.isEmpty) {
+      return [];
+    }
+    final Database db = await database;
+    String questionMarks =
+        List.generate(taskIds.length, (index) => '?').join(', ');
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTagMapping,
+      where: '$_columnTaskIdMapping IN ($questionMarks)',
+      whereArgs: [taskIds],
+    );
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToTagMappingPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
   Future<List<TagMappingPo>> getAllTagMappings() async {
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_tableTagMapping);
@@ -276,6 +367,24 @@ class DatabaseHelper {
       return _mapToTaskPo(maps[0]);
     } else {
       return null;
+    }
+  }
+
+  Future<List<TaskPo>> getTasksByIds(List<int> ids) async {
+    if (ids.isEmpty) return [];
+
+    final Database db = await database;
+    String questionMarks = List.generate(ids.length, (index) => '?').join(', ');
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTask,
+      where: '$_columnId IN ($questionMarks)',
+      whereArgs: [ids],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToTaskPo(e)).toList();
+    } else {
+      return [];
     }
   }
 

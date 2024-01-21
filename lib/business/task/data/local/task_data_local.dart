@@ -6,13 +6,18 @@ import 'database_helper.dart';
 
 class TaskLocalDatabase extends TaskDataProtocol {
   @override
-  createComment(CommentPo commentPo) {
-    // TODO: implement createComment
-    throw UnimplementedError();
+  Future<CommentPo> createComment(CommentPo commentPo) async {
+    final helper = DatabaseHelper();
+    Database database = await helper.database;
+    int id = await database.transaction((txn) async {
+      return await helper.insertComment(txn, commentPo);
+    });
+    commentPo.id = id;
+    return commentPo;
   }
 
   @override
-  Future<void> createTask(CreateUpdateTaskVo createTaskVo) async {
+  Future<TaskPo> createTask(CreateUpdateTaskVo createTaskVo) async {
     final TaskPo taskPo = createTaskVo.task;
     final helper = DatabaseHelper();
     Database database = await helper.database;
@@ -29,10 +34,10 @@ class TaskLocalDatabase extends TaskDataProtocol {
       }
       return null;
     }).toList();
-    database.transaction((txn) async {
-      final int taskId = await helper.insertTask(txn, taskPo);
 
-      //
+    //
+    int taskId = await database.transaction((txn) async {
+      final int taskId = await helper.insertTask(txn, taskPo);
       List<EventPo>? eventPoList = createTaskVo.eventList;
       eventPoList?.forEach((element) {
         element.taskId = taskId;
@@ -51,7 +56,12 @@ class TaskLocalDatabase extends TaskDataProtocol {
       if (mappingList.isNotEmpty) {
         helper.insertTagMappingList(txn, mappingList);
       }
+
+      return taskId;
     });
+
+    taskPo.id = taskId;
+    return taskPo;
   }
 
   Future<Map<String, TagPo>> _createTags(
@@ -93,79 +103,80 @@ class TaskLocalDatabase extends TaskDataProtocol {
   }
 
   @override
-  List<EventPo> getAllTaskRecentUnfinishedEventList(List<int> taskIdList) {
+  Future<List<EventPo>> getAllTaskRecentUnfinishedEventList(
+      List<int> taskIdList) async {
     // TODO: implement getAllTaskRecentUnfinishedEventList
     throw UnimplementedError();
   }
 
   @override
-  List<TagPo> getAllTaskTagList(List<int> taskIdList) {
+  Future<List<TagPo>> getAllTaskTagList(List<int> taskIdList) async {
     // TODO: implement getAllTaskTagList
     throw UnimplementedError();
   }
 
   @override
-  List<EventPo> getExpiredEventList() {
+  Future<List<EventPo>> getExpiredEventList() async {
     // TODO: implement getExpiredEventList
     throw UnimplementedError();
   }
 
   @override
-  List<TaskPo> getFinishedTaskList() {
+  Future<List<TaskPo>> getFinishedTaskList() async {
     // TODO: implement getFinishedTaskList
     throw UnimplementedError();
   }
 
   @override
-  List<EventPo> getFutureEventList() {
+  Future<List<EventPo>> getFutureEventList() async {
     // TODO: implement getFutureEventList
     throw UnimplementedError();
   }
 
   @override
-  TaskPo getTask(int taskId) {
+  Future<TaskPo> getTask(int taskId) async {
     // TODO: implement getTask
     throw UnimplementedError();
   }
 
   @override
-  List<CommentPo> getTaskCommentList(int taskId) {
+  Future<List<CommentPo>> getTaskCommentList(int taskId) async {
     // TODO: implement getTaskCommentList
     throw UnimplementedError();
   }
 
   @override
-  List<EventPo> getTaskEventList(int taskId) {
+  Future<List<EventPo>> getTaskEventList(int taskId) async {
     // TODO: implement getTaskEventList
     throw UnimplementedError();
   }
 
   @override
-  List<TagPo> getTaskTagList(int taskId) {
+  Future<List<TagPo>> getTaskTagList(int taskId) async {
     // TODO: implement getTaskTagList
     throw UnimplementedError();
   }
 
   @override
-  List<EventPo> getTodayEventList() {
+  Future<List<EventPo>> getTodayEventList() async {
     // TODO: implement getTodayEventList
     throw UnimplementedError();
   }
 
   @override
-  List<TaskPo> getUnfinishedTaskList() {
+  Future<List<TaskPo>> getUnfinishedTaskList() async {
     // TODO: implement getUnfinishedTaskList
     throw UnimplementedError();
   }
 
   @override
-  updateEvent(EventPo eventPo) {
+  Future<void> updateEvent(EventPo eventPo) async {
     // TODO: implement updateEvent
     throw UnimplementedError();
   }
 
   @override
-  updateTask(CreateUpdateTaskVo updateTaskVo) {
+  Future<void> updateTask(CreateUpdateTaskVo updateTaskVo) async {
     // TODO: implement updateTask
     throw UnimplementedError();
   }
