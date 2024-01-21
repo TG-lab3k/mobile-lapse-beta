@@ -115,12 +115,6 @@ class TaskLocalDatabase extends TaskDataProtocol {
   }
 
   @override
-  Future<List<TaskPo>> getFinishedTaskList() async {
-    // TODO: implement getFinishedTaskList
-    throw UnimplementedError();
-  }
-
-  @override
   Future<TaskPo> getTask(int taskId) async {
     // TODO: implement getTask
     throw UnimplementedError();
@@ -182,38 +176,13 @@ class TaskLocalDatabase extends TaskDataProtocol {
       taskMap[taskPo.id!] = taskPo;
     });
     final Map<int, TagMappingPo> tagMappingMap = Map();
-    final Map<int, List<List<TagPo>>> tagGroupMap = Map();
     List<int> tagIdList = [];
     list[1].map((e) => e as TagMappingPo).forEach((element) {
       tagMappingMap[element.taskId!] = element;
       tagIdList.add(element.tagId!);
     });
-    if (tagIdList.isNotEmpty) {
-      var tagList = await helper.getTagsByIds(tagIdList);
-      Map<int, List<TagPo>> parentMap = Map();
-      Map<int, List<TagPo>> tagMap = Map();
-      List<int> parentIdList = [];
-      tagList.forEach((tagPo) {
-        var tagId = tagPo.id!;
-        List<TagPo> tagList = [tagPo];
-
-        var tagGroupList = tagGroupMap[tagId];
-        if (tagGroupList == null) {
-          tagGroupList = [];
-          tagGroupMap[tagId] = tagGroupList;
-        }
-        tagGroupList.add(tagList);
-        tagMap[tagId] = tagList;
-        var parentId = tagPo.parentId;
-        if (parentId != null) {
-          parentIdList.add(parentId);
-          parentMap[parentId] = tagList;
-        }
-      });
-      if (parentIdList.isNotEmpty) {
-        await _reverseTagParentList(helper, parentIdList, parentMap);
-      }
-    }
+    final Map<int, List<List<TagPo>>> tagGroupMap =
+        await _retrieveTagList(helper, tagIdList);
 
     var queriedEventList = eventList.map((eventPo) {
       var taskPo = taskMap[eventPo.taskId]!;
@@ -221,6 +190,40 @@ class TaskLocalDatabase extends TaskDataProtocol {
       return QueriedEventOrTaskVo(eventPo, taskPo, tagList: tagGroupList);
     }).toList();
     return queriedEventList;
+  }
+
+  Future<Map<int, List<List<TagPo>>>> _retrieveTagList(
+      DatabaseHelper helper, List<int> tagIdList) async {
+    if (tagIdList.isEmpty) {
+      return Map();
+    }
+
+    final Map<int, List<List<TagPo>>> tagGroupMap = Map();
+    var tagList = await helper.getTagsByIds(tagIdList);
+    Map<int, List<TagPo>> parentMap = Map();
+    Map<int, List<TagPo>> tagMap = Map();
+    List<int> parentIdList = [];
+    tagList.forEach((tagPo) {
+      var tagId = tagPo.id!;
+      List<TagPo> tagList = [tagPo];
+
+      var tagGroupList = tagGroupMap[tagId];
+      if (tagGroupList == null) {
+        tagGroupList = [];
+        tagGroupMap[tagId] = tagGroupList;
+      }
+      tagGroupList.add(tagList);
+      tagMap[tagId] = tagList;
+      var parentId = tagPo.parentId;
+      if (parentId != null) {
+        parentIdList.add(parentId);
+        parentMap[parentId] = tagList;
+      }
+    });
+    if (parentIdList.isNotEmpty) {
+      await _reverseTagParentList(helper, parentIdList, parentMap);
+    }
+    return tagGroupMap;
   }
 
   Future<void> _reverseTagParentList(DatabaseHelper helper, List<int> tagIds,
@@ -244,8 +247,38 @@ class TaskLocalDatabase extends TaskDataProtocol {
   }
 
   @override
-  Future<List<TaskPo>> getUnfinishedTaskList() async {
-    // TODO: implement getUnfinishedTaskList
+  Future<List<QueriedEventOrTaskVo>> getTasksUnfinished() async {
+    final helper = DatabaseHelper();
+    final taskList = await helper.getTasksNotStatus(TaskStatus.done.index);
+    final Map<int, TagMappingPo> tagMappingMap = Map();
+    List<int> tagIdList = [];
+    taskList.map((e) => e as TagMappingPo).forEach((element) {
+      tagMappingMap[element.taskId!] = element;
+      tagIdList.add(element.tagId!);
+    });
+
+    var list = await Future.wait([
+      helper.getEventsRecentByTaskIdList(tagIdList, EventStatus.todo.index),
+      _retrieveTagList(helper, tagIdList)
+    ]);
+
+    var eventList = list[0] as List<EventPo>;
+    final eventMap = [];
+    eventList.forEach((element) {
+      eventMap[element.taskId!] = element;
+    });
+    final tagGroupMap = list[1] as Map<int, List<List<TagPo>>>;
+    var queriedTaskList = taskList.map((taskPo) {
+      var eventPo = eventMap[taskPo.id!];
+      var tagGroupList = tagGroupMap[tagMappingMap[taskPo.id!]?.tagId!];
+      return QueriedEventOrTaskVo(eventPo, taskPo, tagList: tagGroupList);
+    }).toList();
+    return queriedTaskList;
+  }
+
+  @override
+  Future<List<QueriedEventOrTaskVo>> getTasksFinished() {
+    // TODO: implement getTasksFinished
     throw UnimplementedError();
   }
 

@@ -260,6 +260,34 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<EventPo>> getEventsRecentByTaskIdList(
+      List<int> taskId, int status) async {
+    final Database db = await database;
+    final nowAt = _dateFormat.format(DateTime.now());
+    String questionMarks =
+        List.generate(taskId.length, (index) => '?').join(', ');
+    String sql = '''
+      SELECT $_columnId, MIN($_columnActionAt) as minActionAt
+      FROM $_tableEvent 
+      WHERE $_columnActionAt > ? AND $_columnStatus = ? AND $_columnTaskIdEvent IN($questionMarks)
+      GROUP BY $_columnTaskIdEvent
+    ''';
+    final List<Map<String, dynamic>> maps =
+        await db.rawQuery(sql, [nowAt, status, questionMarks]);
+
+    if (maps.isNotEmpty) {
+      var eventIds = maps.map((e) => e[_columnId] as int).toList();
+      String questionMarks =
+          List.generate(eventIds.length, (index) => '?').join(', ');
+      List<Map<String, dynamic>> mapList = await db.query(_tableEvent,
+          where: "$_columnId IN($questionMarks)", whereArgs: [eventIds]);
+      if (mapList.isNotEmpty) {
+        return mapList.map((e) => _mapToEventPo(e)).toList();
+      }
+    }
+    return [];
+  }
+
   Future<List<EventPo>> getAllEvents() async {
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_tableEvent);
@@ -379,6 +407,21 @@ class DatabaseHelper {
       _tableTask,
       where: '$_columnId IN ($questionMarks)',
       whereArgs: [ids],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToTaskPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<TaskPo>> getTasksNotStatus(int status) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTask,
+      where: '$_columnStatus != ?',
+      whereArgs: [status],
     );
 
     if (maps.isNotEmpty) {

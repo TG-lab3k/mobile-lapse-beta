@@ -23,9 +23,9 @@ abstract class TaskDataProtocol {
 
   Future<TaskPo> getTask(int taskId);
 
-  Future<List<TaskPo>> getUnfinishedTaskList();
+  Future<List<QueriedEventOrTaskVo>> getTasksUnfinished();
 
-  Future<List<TaskPo>> getFinishedTaskList();
+  Future<List<QueriedEventOrTaskVo>> getTasksFinished();
 
   Future<List<TagPo>> getTaskTagList(int taskId);
 

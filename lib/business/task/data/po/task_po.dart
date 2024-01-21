@@ -5,6 +5,11 @@ enum EventStatus {
   done,
 }
 
+enum TaskStatus {
+  todo,
+  done,
+}
+
 class EventPo extends BasePo {
   String? actionAt;
   int? eventOrder;
