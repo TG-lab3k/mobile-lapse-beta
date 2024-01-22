@@ -431,6 +431,21 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<TaskPo>> getTasksByStatus(int status) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableTask,
+      where: '$_columnStatus = ?',
+      whereArgs: [status],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((e) => _mapToTaskPo(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
   Future<List<TaskPo>> getAllTasks() async {
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_tableTask);

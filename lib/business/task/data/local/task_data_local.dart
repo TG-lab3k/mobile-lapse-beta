@@ -26,14 +26,17 @@ class TaskLocalDatabase extends TaskDataProtocol {
     List<TagPo>? tagList = createTaskVo.tagList;
     Map<String, TagPo> tagMap = await _createTags(tagList, helper);
 
-    List<TagMappingPo?>? tagMappingList = tagList?.map((e) {
-      String? tagName = e.tag;
-      TagPo? tagPo = tagMap[tagName];
-      if (tagPo != null) {
-        return TagMappingPo(tagId: tagPo.id);
-      }
-      return null;
-    }).toList();
+    List<TagMappingPo?>? tagMappingList = tagList
+        ?.map((e) {
+          String? tagName = e.tag;
+          TagPo? tagPo = tagMap[tagName];
+          if (tagPo != null) {
+            return TagMappingPo(tagId: tagPo.id);
+          }
+          return null;
+        })
+        .where((element) => element != null)
+        .toList();
 
     //
     int taskId = await database.transaction((txn) async {
@@ -250,6 +253,18 @@ class TaskLocalDatabase extends TaskDataProtocol {
   Future<List<QueriedEventOrTaskVo>> getTasksUnfinished() async {
     final helper = DatabaseHelper();
     final taskList = await helper.getTasksNotStatus(TaskStatus.done.index);
+    return _reverseTasks(helper, taskList);
+  }
+
+  @override
+  Future<List<QueriedEventOrTaskVo>> getTasksFinished() async {
+    final helper = DatabaseHelper();
+    final taskList = await helper.getTasksByStatus(TaskStatus.done.index);
+    return _reverseTasks(helper, taskList);
+  }
+
+  Future<List<QueriedEventOrTaskVo>> _reverseTasks(
+      DatabaseHelper helper, List<TaskPo> taskList) async {
     final Map<int, TagMappingPo> tagMappingMap = Map();
     List<int> tagIdList = [];
     taskList.map((e) => e as TagMappingPo).forEach((element) {
@@ -274,12 +289,6 @@ class TaskLocalDatabase extends TaskDataProtocol {
       return QueriedEventOrTaskVo(eventPo, taskPo, tagList: tagGroupList);
     }).toList();
     return queriedTaskList;
-  }
-
-  @override
-  Future<List<QueriedEventOrTaskVo>> getTasksFinished() {
-    // TODO: implement getTasksFinished
-    throw UnimplementedError();
   }
 
   @override
