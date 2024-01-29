@@ -8,10 +8,8 @@ import 'package:lapse/business/event/detail/detail_page.dart';
 import 'package:lapse/business/event/home/home_page.dart';
 import 'package:lapse/theme/themes.dart';
 import 'package:lapse/widget/toasts.dart';
-import 'package:mmkv/mmkv.dart';
 
 void main() async {
-  await MMKV.initialize();
   runApp(const LapseApp());
 }
 

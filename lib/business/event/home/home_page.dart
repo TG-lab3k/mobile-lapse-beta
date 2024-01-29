@@ -5,6 +5,7 @@ import 'package:lapse/business/event/home/home_service.dart';
 import 'package:lapse/business/event/home/schedule_page.dart';
 import 'package:lapse/business/event/home/schedule_service.dart';
 import 'package:lapse/business/event/repository/database/tag.dart';
+import 'package:lapse/business/task/presentation/creator/creator_page.dart';
 import 'package:lapse/infra/asset/assets.dart';
 import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
@@ -85,7 +86,8 @@ class _EventHomePageState extends State<EventHomePage> {
               child: Assets.image("ic_appmenu_added.png"),
             ),
             onPressed: () {
-              context.go("/lapse/event/added/common");
+              //context.go("/lapse/event/added/common");
+              CreatorPageRoute.openCreatorPage(context);
             },
           ),
         ],
