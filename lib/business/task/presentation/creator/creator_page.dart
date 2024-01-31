@@ -13,13 +13,13 @@ class CreatorPageRoute {
         isScrollControlled: true,
         builder: ((BuildContext context) {
           return SingleChildScrollView(
-            child: CreatorPage(),
+            child: _CreatorPage(),
           );
         }));
   }
 }
 
-class CreatorPage extends StatelessWidget {
+class _CreatorPage extends StatelessWidget {
   final TextEditingController _taskCreatorEditingController =
       TextEditingController();
   FocusNode __taskCreatorFocusNode = FocusNode();
@@ -51,7 +51,7 @@ class CreatorPage extends StatelessWidget {
                 child: Container(
                     padding: EdgeInsets.all(18),
                     child: ClipOval(
-                      child: Assets.image("ic_appmenu_drawer.png"),
+                      child: Assets.image("ic_appmenu_datetime.png"),
                     )),
                 onTap: () async {
                   //TODO open datetime panel
