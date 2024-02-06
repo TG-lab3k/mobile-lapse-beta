@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -76,21 +77,36 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
   }
 
   Widget _buildTimeWidget() {
+    ThemeData appThemeData = Theme.of(context);
     return Container(
-      child: Row(
-        children: <Widget>[
-          Text("时间:"),
-          Container(
-              margin: const EdgeInsets.only(left: 10),
-              child: Clickable(
-                host: Text(_selectedTime?.format(context) ?? "选择时间"),
-                listener: (Widget hostWidget) {
-                  _selectTime(context, TimeOfDay.now());
-                },
-              ))
-        ],
-      ),
-    );
+        child: Row(
+      children: <Widget>[
+        Text("时间:"),
+        Container(
+          margin: const EdgeInsets.only(left: 10),
+          child: Theme(
+            data: appThemeData.copyWith(
+                primaryColor: colorPrimary03,
+                colorScheme: appThemeData.colorScheme
+                    .copyWith(
+                      primary: colorPrimary03,
+                      secondary: colorPrimary03,
+                    )
+                    .copyWith(secondary: colorPrimary03)),
+            child: Builder(
+              builder: (context) {
+                return Clickable(
+                  host: Text(_selectedTime?.format(context) ?? "选择时间"),
+                  listener: (Widget hostWidget) {
+                    _selectTime(context, TimeOfDay.now());
+                  },
+                );
+              },
+            ),
+          ),
+        )
+      ],
+    ));
   }
 
   Future<void> _selectTime(BuildContext context, TimeOfDay initTime) async {
