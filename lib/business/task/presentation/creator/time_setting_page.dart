@@ -1,3 +1,4 @@
+import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:lapse/business/event/common/util/common_formats.dart';
@@ -5,7 +6,6 @@ import 'package:lapse/l10n/localizations.dart';
 import 'package:lapse/theme/colors.dart';
 import 'package:lapse/widget/clickable.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TimeSettingArgs {
   List<String>? defaultDatetimeList;
@@ -43,7 +43,7 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
       DateTime.now().millisecondsSinceEpoch +
           Duration(minutes: 10).inMilliseconds);
   String? _dateTimePickerFormat;
-  DateTimePickerLocale _locale = DateTimePickerLocale.zh_cn;
+  Time _time = Time(hour: 12, minute: 0);
 
   @override
   void initState() {
@@ -113,23 +113,22 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
     if (_dateTimePickerFormat == null) {
       _dateTimePickerFormat = TextI18ns.from(context).memAddedDateTimeFormat;
     }
-    DatePicker.showDatePicker(
-      context,
-      minDateTime: startAt,
-      initialDateTime: selectedAt,
-      dateFormat: _dateTimePickerFormat,
-      locale: _locale,
-      pickerTheme: DateTimePickerTheme(
-        showTitle: true,
-        confirmTextStyle: TextStyle(color: colorPrimary8),
-        cancelTextStyle: TextStyle(color: colorPrimary8),
-      ),
-      pickerMode: DateTimePickerMode.datetime,
-      onConfirm: (dateTime, List<int> index) {
+    Navigator.of(context).push(showPicker(
+      context: context,
+      iosStylePicker: true,
+      is24HrFormat: true,
+      value: _time,
+      sunrise: TimeOfDay(hour: 6, minute: 0),
+      // optional
+      sunset: TimeOfDay(hour: 18, minute: 0),
+      // optional
+      duskSpanInMinutes: 120,
+      // optional
+      onChange: (time) {
         setState(() {
-          _reminderTime = dateTime;
+          _time = time;
         });
       },
-    );
+    ));
   }
 }
