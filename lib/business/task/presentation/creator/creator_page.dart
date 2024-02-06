@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lapse/infra/asset/assets.dart';
 import 'package:lapse/l10n/localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lapse/theme/colors.dart';
+
+import 'time_setting_page.dart';
 
 class CreatorPageRoute {
   static void openCreatorPage(
@@ -19,10 +21,15 @@ class CreatorPageRoute {
   }
 }
 
-class _CreatorPage extends StatelessWidget {
+class _CreatorPage extends StatefulWidget {
+  @override
+  _CreatorPageState createState() => _CreatorPageState();
+}
+
+class _CreatorPageState extends State<_CreatorPage> {
   final TextEditingController _taskCreatorEditingController =
       TextEditingController();
-  FocusNode __taskCreatorFocusNode = FocusNode();
+  final FocusNode __taskCreatorFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,8 @@ class _CreatorPage extends StatelessWidget {
                       child: Assets.image("ic_appmenu_datetime.png"),
                     )),
                 onTap: () async {
-                  //TODO open datetime panel
+                  TimeSettingPageRoute.openTimeSettingPage(
+                      context, TimeSettingArgs([]));
                 },
               ),
               InkWell(
