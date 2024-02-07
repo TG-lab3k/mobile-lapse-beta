@@ -22,6 +22,16 @@ class TimeSettingPageRoute {
   }
 }
 
+enum _RepeatType {
+  None('无', 0),
+  Ebbinghaus('艾宾浩斯遗忘曲线', 1);
+
+  const _RepeatType(this.label, this.value);
+
+  final String label;
+  final int value;
+}
+
 class _TimeSettingPage extends StatefulWidget {
   final TimeSettingArgs? args;
 
@@ -81,7 +91,7 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
     return Container(
         child: Row(
       children: <Widget>[
-        Text("时间:"),
+        Text("时间: "),
         Container(
           margin: const EdgeInsets.only(left: 10),
           child: Theme(
@@ -96,7 +106,7 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
             child: Builder(
               builder: (context) {
                 return Clickable(
-                  host: Text(_selectedTime?.format(context) ?? "选择时间"),
+                  host: Text(_selectedTime?.format(context) ?? "请选择"),
                   listener: (Widget hostWidget) {
                     _selectTime(context, TimeOfDay.now());
                   },
@@ -127,7 +137,22 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
 
   Widget _buildRepeatWidget() {
     return Container(
-      child: Text("Repeat"),
+      child: Row(
+        children: [
+          Text("重复类型: "),
+          DropdownMenu<_RepeatType>(
+              initialSelection: _RepeatType.None,
+              requestFocusOnTap: true,
+              dropdownMenuEntries: _RepeatType.values
+                  .map<DropdownMenuEntry<_RepeatType>>((_RepeatType tye) {
+                return DropdownMenuEntry<_RepeatType>(
+                    value: tye, label: tye.label);
+              }).toList(),
+              onSelected: (item) {
+                print("#selectRepeat# item: ${item?.label}");
+              })
+        ],
+      ),
     );
   }
 }
