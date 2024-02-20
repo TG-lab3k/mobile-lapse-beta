@@ -3,6 +3,7 @@
 
     <application
         android:name="com.lapse.beta.LapseApp"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/appName">
         <activity

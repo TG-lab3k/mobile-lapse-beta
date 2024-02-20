@@ -14,9 +14,11 @@ class CreatorPageRoute {
         context: buildContext,
         isScrollControlled: true,
         builder: ((BuildContext context) {
-          return SingleChildScrollView(
-            child: _CreatorPage(),
-          );
+          return Builder(builder: (BuildContext context) {
+            return SingleChildScrollView(
+              child: _CreatorPage(),
+            );
+          });
         }));
   }
 }
@@ -29,7 +31,14 @@ class _CreatorPage extends StatefulWidget {
 class _CreatorPageState extends State<_CreatorPage> {
   final TextEditingController _taskCreatorEditingController =
       TextEditingController();
-  final FocusNode __taskCreatorFocusNode = FocusNode();
+  final FocusNode _taskCreatorFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _taskCreatorFocusNode.dispose();
+    _taskCreatorEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +52,13 @@ class _CreatorPageState extends State<_CreatorPage> {
           //Input View
           Container(
             child: TextField(
+              keyboardType: TextInputType.multiline,
               minLines: 10,
               maxLines: 10,
               style: textFieldStyle,
               cursorColor: colorPrimary8,
               controller: _taskCreatorEditingController,
-              focusNode: __taskCreatorFocusNode,
+              focusNode: _taskCreatorFocusNode,
               decoration: _buildInputDecoration(localizations.eventContentHint),
             ),
           ),
@@ -61,6 +71,7 @@ class _CreatorPageState extends State<_CreatorPage> {
                       child: Assets.image("ic_appmenu_datetime.png"),
                     )),
                 onTap: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
                   TimeSettingPageRoute.openTimeSettingPage(
                       context, TimeSettingArgs([]));
                 },

@@ -15,9 +15,11 @@ class TimeSettingPageRoute {
         context: context,
         isScrollControlled: true,
         builder: ((BuildContext context) {
-          return SingleChildScrollView(
-            child: _TimeSettingPage(args),
-          );
+          return Builder(builder: (BuildContext context) {
+            return SingleChildScrollView(
+              child: _TimeSettingPage(args),
+            );
+          });
         }));
   }
 }
@@ -142,7 +144,7 @@ class _TimeSettingPageState extends State<_TimeSettingPage> {
           Text("重复类型: "),
           DropdownMenu<_RepeatType>(
               initialSelection: _RepeatType.None,
-              requestFocusOnTap: true,
+              requestFocusOnTap: false,
               dropdownMenuEntries: _RepeatType.values
                   .map<DropdownMenuEntry<_RepeatType>>((_RepeatType tye) {
                 return DropdownMenuEntry<_RepeatType>(
